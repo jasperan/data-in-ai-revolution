@@ -209,9 +209,9 @@ Here's a visualization of each head's attention weights:
 
 ![head attention weights](./img/attention_heads.png)
 
-This gives you an idea, in this example, of how each head looks at the text in a different manner, depending on how they've been programmed.
+This gives you an idea of how each head looks at the text in a different manner, depending on how they've been programmed.
 
-I have created [a Python script](./scripts/check_attention_heads.py) so you can visually see the differences in attention weights from each head based on your own input. To run it:
+I've created [a Python script](./scripts/check_attention_heads.py) so you can visually see the differences in attention weights from each head based on your own input. To run it:
 
 ```bash
 pip install -r scripts/requirements.txt
