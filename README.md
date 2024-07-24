@@ -157,6 +157,13 @@ On a final note, since the tokenizer and the embedding model work together, they
 
 Tokenizer and embedding model are sometimes used interchangeably as they are often packaged together, but they are different components that work in unison.
 
+Here's [a Python script](./scripts/check_embeddings_matrix.py) you can run to see how embeddings are represented in tensors based on your own input. To run it:
+
+```bash
+pip install -r scripts/requirements.txt
+python scripts/check_embeddings_matrix.py
+```
+
 ### Self-Attention or Multi-Head Attention
 
 ![self attention](./img/self-attention.PNG)
