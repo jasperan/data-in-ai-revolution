@@ -29,9 +29,9 @@ An Oracle Cloud Infrastructure (OCI) Account. Although it's not explicitly requi
 
 There are lots of problems that fall into the realm of Artificial Intelligence. However, not all data fits the desired format to solve a specific type of problem. Depending on what type of data we have available, we'll be able to use it in one way or the other.
 
-For example, all AI models that are used to generate text require text data. On the other hand, models that are used to process images or video, to detect objects on these images, or segment them, require 2-dimensional data. We'll talk about more of each type of data in the next sections.
+For example, all AI models that are used to generate text require **text data**. On the other hand, models that are used to process **images or video**, to detect objects on these images, or segment them, require 2-dimensional data. We'll talk about more of each type of data in the next sections.
 
-### 1-dimensional data (Text)
+### Text data
 
 This is the most common type of data we have available. It's usually found in the form of text, and can be used to train a model to perform various tasks:
 
@@ -61,7 +61,7 @@ For example, here we have a project we developed, called [League of Legends opti
 
 ![lcs example](./img/lcs.PNG)
 
-Without going into much of the gaming jargon, in this image, we have two teams fighting in the bottom part of the map for gold and kills. League of Legends is such a complex game, that we can't just use the raw data (video) to create a Machine Learning model -in theory, we could, but detecting the objects that appear on the screen would offer no value other than the mere excitement from creating such a model-.
+Without going into gaming jargon too much, in this image, we have two teams fighting in the bottom part of the map for gold and kills. League of Legends is such a complex game, that we can't just use the raw data (video) to create a Machine Learning model -in theory, we could, but detecting the objects that appear on the screen would offer no value other than the mere excitement from creating such a model-.
 
 Remember that ML models are typically hyper-specialized in predicting something. Therefore, we need to **encode** the data we have (images / video, what we see on our screens) in a way that a ML model understands (numbers).
 
