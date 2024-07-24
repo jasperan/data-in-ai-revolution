@@ -16,7 +16,7 @@ On one hand, managing and processing such vast amounts of data require advanced 
 
 In order to follow the contents of this workshop, you will need the following:
 
-1. An Oracle Cloud Infrastructure (OCI) Account. Although it's not explicitly required as you don't have to follow any of the steps by yourself, it's still recommended as you will be able to explore the services and offerings from OCI while we go through the content.
+An Oracle Cloud Infrastructure (OCI) Account. Although it's not explicitly required as you don't have to follow any of the steps by yourself, it's still recommended as you will be able to explore the services and use cases we mention in the workshop on OCI, while scanning through the content.
 
 ### Docs
 
@@ -137,6 +137,8 @@ We will check out all these concepts in the following subsections.
 
 ### Tokenizer & Embeddings Model
 
+![tokenizer](./img/tokenizer.PNG)
+
 A tokenizer is the part of the system that breaks down the original, human-readable text into smaller units, called tokens. Tokens represent words, characters or groups of characters; this is determined by the tokenization strategy used by the creator of the tokenizer.
 
 The tokenizer converts the text into a sequence of token IDs, and these IDs are then stored in a reference table so that this process can then be reverted back into human-readable language at the last step of the transformer architecture, so we can read the text back.
@@ -156,6 +158,8 @@ On a final note, since the tokenizer and the embedding model work together, they
 Tokenizer and embedding model are sometimes used interchangeably as they are often packaged together, but they are different components that work in unison.
 
 ### Self-Attention or Multi-Head Attention
+
+![self attention](./img/self-attention.PNG)
 
 Self-attention is the mechanism used to determine the importance of different parts of an input text when processing this text. This is the foundation of LLMs in the sense that it captures what we call as the **context** of a large input text.
 
@@ -181,13 +185,15 @@ Let's say we have the following sentence:
 "Nacho slept on the couch last night, which was a bit too hard for his back."
 ```
 
+![sentence analysis](./img/nacho-analysis.PNG)
+
 Each head would look at different parts of the text, and create their respective (Q,K,V) matrices. For example:
 
 Head #1 focusing on **syntactic** relationships:
 
-- subject-verb relationships: studies the relationship between "Nacho" and "slept"
-- verb-object relationships: "slept" and "couch"
-- preposition-object relations: "on" and "couch"
+- subject-verb relationships: studies the relationship between `Nacho` and `slept`
+- verb-object relationships: `slept` and `couch`
+- preposition-object relations: `on` and `couch`
 
 Then, another head to study **temporality** (when the action occurred):
 
