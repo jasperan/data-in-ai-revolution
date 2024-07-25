@@ -44,7 +44,7 @@ Large Language Models (LLMs) and text-generation Generative AI (GenAI) fall into
 
 Here's a quote from an excerpt on the GPT-3 paper:
 
-"The raw (before filtering) training set was **45TB** of compressed plaintext. After filtering, it was ~570GB. It used text scraped from the internet, wikipedia and books. The final model is ~175B parameters."
+> "The raw (before filtering) training set was **45TB** of compressed plaintext. After filtering, it was ~570GB. It used text scraped from the internet, wikipedia and books. The final model is ~175B parameters."
 
 The prominent architecture for the Neural Networks in this type of data is called **Transformer** Architecture. We will learn more about how the transformer architecture "mimics" human language, and how it helps computers understand our human way of thinking. Here's a figure representing the transformer architecture:
 
