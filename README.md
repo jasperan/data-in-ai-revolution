@@ -340,7 +340,7 @@ Here's what a Neural Networks looks like, even if it's not pretty. Note that eve
 
 ### How does learning work
 
-Let's go over one of the most popular Object Detection datasets out there, and also one of the most basic ones: the MNIST dataset. It's a large database of handwritten digits, with about 60.000 examples, and a test dataset of 10.000 examples (to later check against the training that we did, and ascertain if we did good or not).
+Let's go over one of the most popular image classification datasets out there, and also one of the most basic ones: the MNIST dataset. It's a large database of handwritten digits, with about 60.000 examples, and a test dataset of 10.000 examples (to later check against the training that we did, and ascertain if we did good or not).
 
 ![mnist dataset example](./img/mnist_example.png)
 
@@ -364,11 +364,13 @@ After looking at images from the training dataset several times, the Neural Netw
 
 Since our MNIST dataset contains 784 pixels in total for all images, a Neural Network that wants to learn how to recognize which digit we give it, will require 784 neurons in the first layer, called the **input layer**. If we were to use less neurons on this layer, we'd be effectively throwing away input pixels from the images!
 
-So, the first thing we do is flatten all the pixels (because typically they are represented in a matrix holding these pixel values), so we take each row of pixels, and put them one after the other, creating a vector of dimension (1, 784).
+So, the first thing we do is **flatten** all the pixels (because typically they are represented in a matrix holding these pixel values), so we take each row of pixels, and put them one after the other, creating a vector of dimension (1, 784).
 
 ![input layer](./img/input_layer.PNG)
 
-Now, in the case of working with color images in a dataset, the input layer needs to be different: the number of neurons in the layer isn't the number of pixels in an image. Because we humans typically use RGB images as input, the input layer has three channels, corresponding to the red, green, and blue colors, respectively. We hold the pixel value information for each one of the pixels of the image, for each channel. Each one is assigned a different tensor (an n-dimensional matrix) that holds this information. So, in theory, when working with RGB images or video, we're effectively tripling (or quadrupling if using the RGBA standard) the amount of data that we hold.
+Now, in the case of working with color images in a dataset, the input layer needs to be different: the number of neurons in the layer isn't the number of pixels in an image. Because we humans typically use RGB images as input, the input layer has three channels, corresponding to the red, green, and blue colors, respectively.
+
+We hold the pixel value information for each one of the pixels of the image, for each channel. Each one is assigned a different tensor (an n-dimensional matrix) which holds this information. So, in theory, when working with RGB images or video, we're effectively tripling (or quadrupling if using the RGBA standard) the amount of data that we hold.
 
 ### Output layer
 
@@ -442,7 +444,8 @@ You can see that the bounding box representation of the detected object in the i
 
 Author: [Nacho Martinez](https://github.com/jasperan)
 
-Huge credits to the creators of [CNN Explainer](https://poloclub.github.io/cnn-explainer/) for their amazing tool to visualize CNNs called TinyVGG
+Huge credits to the creators of [CNN Explainer](https://poloclub.github.io/cnn-explainer/) for their amazing tool (from which I took screenshots) to explain and visualize CNNs, called TinyVGG.
+
 Last release: July 2024
 
 This project is open source. Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
