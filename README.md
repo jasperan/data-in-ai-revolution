@@ -126,7 +126,7 @@ For this example, we consider a Machine Learning model from a car dealership com
 
 I have created some Manim visualizations, so that the basic concepts of Predictive ML can be understood better:
 
-![manim predictive ML - part 1](./video/PredictiveMLVisualization.mp4)
+https://github.com/user-attachments/assets/6b2f650f-cd21-4306-b060-b2d8cef5f283
 
 Having this data:
 
@@ -142,7 +142,7 @@ After doing these steps, and having a big and rich enough dataset, we can train 
 I had 300 customers in the past, their income, name, age and number of cars, were X, Y, Z, and W, and 113 of them bought a car within the next 7 days after coming to the dealership. 
 ```
 
-![manim predictive ML - part 2](./video/MLDataAggregationVisualization.mp4)
+https://github.com/user-attachments/assets/4bc0a81e-f871-4bdf-b895-b221d5e696ea
 
 We have done several projects in the past talking about Predictive ML, feel free to check out these projects and see how I solved each step with great detail:
 
@@ -561,7 +561,7 @@ Do you have to perform quantization all the time?
 
 Here's a visual video I created with [Manim](https://www.manim.community/) to visually see what happens to a weights matrix when applying quantization:
 
-![quantization video](./video/QuantizationVisualization.mp4)
+https://github.com/user-attachments/assets/260c4963-e405-4d29-886f-2e1f0aaa3d6e
 
 ### Contributors
 
