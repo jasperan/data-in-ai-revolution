@@ -113,6 +113,48 @@ In the guide, we'll dive deeper into how these results can be interpreted and in
 
 ## 2. Predictive ML: In Depth
 
+This domain of Machine Learning focuses on using historical data (or previously collected data) to forecast what happens in the future.
+
+It has the following characteristics:
+
+- Requires loads of data (typically), unless working with decision trees. It's not only about the amount of data but the *quality* of it - the variables included in this data need to be relevant to the problem we're trying to solve
+- The main goal is to create a predictor, from extensive data, of one or multiple variables within the data
+- The model aims to maximize accuracy and precision by including as many important variables as possible in the prediction domain.
+- Development of a ML model would save significant time and resources as opposed to doing these predictions manually 
+
+For this example, we consider a Machine Learning model from a car dealership company, that wants to predict the buying probability of a new model car they just introduced to the market, based on some basic data from their customers.
+
+I have created some Manim visualizations, so that the basic concepts of Predictive ML can be understood better:
+
+![manim predictive ML - part 1](./video/PredictiveMLVisualization.mp4)
+
+Having this data:
+
+```bash
+[Name: John, Age: 30, Income: $50k, PreviousCars: 2]
+```
+
+We want to predict their **purchasing probability**. We need to perform some steps, like exploring the data that's available to us, seeing which variables may be of interest, and encoding these variables (especially those that represent words) into numbers, which will be digestible by the ML model. The process of exploring and choosing important variables is called **feature selection and engineering**. 
+
+After doing these steps, and having a big and rich enough dataset, we can train the model on these examples, based on previous occurrences.
+
+```text
+I had 300 customers in the past, their income, name, age and number of cars, were X, Y, Z, and W, and 113 of them bought a car within the next 7 days after coming to the dealership. 
+```
+
+![manim predictive ML - part 2](./video/MLDataAggregationVisualization.mp4)
+
+We have done several projects in the past talking about Predictive ML, feel free to check out these projects and see how I solved each step with great detail:
+
+- [Oracle RedBull Racing x Oracle: Creating a Data Science Pit Strategy for the team](https://github.com/oracle-devrel/redbull-pit-strategy)
+- [League of Legends Optimizer - Learn Artificial Intelligence with Gaming](https://github.com/oracle-devrel/leagueoflegends-optimizer)
+
+As you can see, data needs to be in numerical format - at least at the end of the process - so that the model (a natural extension of the computer) can understand the data we provide it. If we have any non-textual data, we need to make some additional processing to turn this data into numbers (through APIs, processing of our own...).
+
+Since Predictive ML works with textual data, I consider this to be the simplest sub-field of Artificial Intelligence, at least at the moment.
+
+> As a general note, Predictive ML *usually* focuses on finding linear relationships between variables. Non-linearity can be achieved by training NN-based predictive models, which excel at finding non-linear properties and correlations between variables. Most of Predictive ML does **not** consider NNs, and focuses on other types of models (gradient boosting models, decision trees, linear regression, logistic regression...)
+
 ## 3. Large Language Models: In Depth
 
 LLMs use the Transformer Architecture to learn and make predictions using Neural Networks.
@@ -440,13 +482,94 @@ You can see that the bounding box representation of the detected object in the i
 
 ## 5. Experimental Tech: Quantization
 
+Quantization is a technique used to reduce the memory usage of NNs. Remember that the information contained in Neural Networks, after a network has been trained for a number of iterations, is a matrix or vector of values representing either the attention weights (in LLMs) or the neurons' weights and biases (for RNNs).
+
+So, all these numbers are typically represented in floating point representation with 32 bits. Since 8 bits = 1 byte, each of these values requires 4 bytes to store this information.
+
+As additional information, just know that values in 32-bit FP representation use the `IEEE-754` standard. Each number has 3 components:
+
+- 1 bit for representing the sign (positive or negative)
+- Exponent: 8 bits with a biased exponent format, allowing us to represent a number in binary scientific notation - with this format: `1.xxxxx * 2^n`, where `n` is the exponent.
+    
+    If I had `0.555`, it would be `1.11 * 2^-1`. The exponent becomes -1.
+
+    By adding the exponent to the biased exponent format of single-point precision (127), you get `127 + (-1) = 126`
+
+    This gets translated to binary: `01111110`
+
+- Mantissa: 23 bits, representing the **fractional** part of the number in binary scientific notation, in our case `11`: `00000000000000000001011`
+
+When performing quantization, most of the part that's cut out is the mantissa, which can get as low as 3 bits in 8-bit floating-point representation.
+
+1. Let's see an example, with the original FP32 value of `0.7853`.
+
+    > In this example we will only consider 1 value to quantize - so you see the process, but typically quantization is applied mathematically throughout whole matrices and vectors - the purpose is to quantize in parallel all elements of a matrix -.
+
+2. Let's say all values range between -1 and 1. Here's an example weights matrix:
+
+    ```bash
+        [0.7853, -0.789, 0.456],
+        [0.141, -0.718, 1.0],
+        [-0.414, 0.236, -1.0]
+    ```
+
+3. Now, quantization can be applied in many ways, depending on how much precision you're willing to sacrifice to get lighter and lighter quantization. Let's say we want to do quantization from 32 bits to 8 bits.
+
+    8 bits can effectively represent 2^8 = 256 different values.
+
+    The scale factor is calculated with the following formula:
+
+    ```bash
+    scale_factor = (max_value - min_value) / (2^bits - 1)
+    
+    scale_factor = (1 - (-1)) / (256 - 1) = 2 / 255 = 0.00784
+    # the scale factor represent how much each element in the matrix will need to get reduced / augmented during quantization
+    ```
+
+4. To quantize each one of the elements in the matrix:
+
+    ```bash
+    quantized_value = round((original_value - min_value) / scale_factor)
+
+    quantized_value = round((0.7853 - (-1)) / 0.00784) 
+
+    quantized_value = round(227.97) = 228
+    ```
+
+5. To dequantize, we perform the operation in reverse:
+
+    ```bash
+    dequantized_value = (quantized_value * scale) + min_value
+    
+    dequantized_value = (228 * 0.00784) + (-1) ≈ 0.78752
+    ```
+
+6. As you can see, after performing quantization and dequantization, the original value has changed, from `0.7853` to `0.78752`. This is due to the value represented in 8-bit precision during the quantization step, and then re-expanding this 8-bit value to 32-bits again during step 5. As a consequence:
+
+    - Our NN's weights can now be represented in 8-bits, reducing memory consumption by 75% when loading the model
+    - After the model has been loaded, if you're using a quantized model, matrix multiplications, dot products, and other underlying NN operations, are also much faster, as multiplying 2 8-bit FP matrices is also much faster than multiplying 32-bit ones
+    - This leads to less energy consumption when doing inference
+    - It also allows us to fit and use huge models (70B+ parameters) on smaller devices - this is what's happening nowadays with models being created for smartphones and smart devices, although most of these models don't yet do the calculations themselves locally; this is how quantization can help
+    - Drawback: you lose precision - in the case of LLMs and attention weights, this causes slight misinterpretations of the meaning of texts; in RNNs this may lead to errors in classifying images and objects.
+
+Quantization specially shines when working with real-time systems like edge devices (security cameras, smartphones) - it allows these models to run efficiently on devices with very limited computational resources.
+
+Do you have to perform quantization all the time?
+    
+    > No, you need to find a balance between model size, speed and accuracy - depending on the hardware and NN you want to use.
+
+
+Here's a visual video I created with [Manim](https://www.manim.community/) to visually see what happens to a weights matrix when applying quantization:
+
+![quantization video](./video/QuantizationVisualization.mp4)
+
 ### Contributors
 
 Author: [Nacho Martinez](https://github.com/jasperan)
 
 Huge credits to the creators of [CNN Explainer](https://poloclub.github.io/cnn-explainer/) for their amazing tool (from which I took screenshots) to explain and visualize CNNs, called TinyVGG.
 
-Last release: July 2024
+Last release: August 2024
 
 This project is open source. Please submit your contributions by forking this repository and submitting a pull request!  Oracle appreciates any contributions that are made by the open source community.
 
