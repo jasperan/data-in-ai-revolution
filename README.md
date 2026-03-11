@@ -43,6 +43,22 @@ In order to follow the contents of this workshop, you will need the following:
 
 An Oracle Cloud Infrastructure (OCI) Account. Although it's not explicitly required as you don't have to follow any of the steps by yourself, it's still recommended as you will be able to explore the services and use cases we mention in the workshop on OCI, while scanning through the content.
 
+### Interactive Notebooks
+
+This project includes Jupyter notebooks for hands-on exploration. To run them:
+
+```bash
+pip install -r scripts/requirements.txt
+jupyter notebook notebooks/
+```
+
+| Notebook | Topic |
+|----------|-------|
+| [01_embeddings_explorer.ipynb](./notebooks/01_embeddings_explorer.ipynb) | Visualize BERT embeddings: heatmaps, cosine similarity, PCA/t-SNE projections |
+| [02_attention_heads_explorer.ipynb](./notebooks/02_attention_heads_explorer.ipynb) | Explore multi-head attention: per-head heatmaps, attention rollout, entropy analysis |
+| [03_rag_vector_search.ipynb](./notebooks/03_rag_vector_search.ipynb) | Build a RAG pipeline from scratch: chunking, embedding, vector search, prompt assembly |
+| [04_fine_tuning_data_formats.ipynb](./notebooks/04_fine_tuning_data_formats.ipynb) | SFT, RLHF, DPO data formats; data quality filtering; raw text to training data conversion |
+
 ### Docs
 
 - [Computer Vision: COVID-19 Mask Detection - Data Labeling](https://oracle-devrel.github.io/devrel-labs/workshops/mask_detection_labeling/index.html)
@@ -505,7 +521,96 @@ Even though most data representations are similar in general, there are always d
 
 You can see that the bounding box representation of the detected object in the image varies, depending on which framework / service we're using: OCI Vision uses a different number of keypoints (4) (as well as a different order of these keypoints) when compared to OpenCV (only gives you the top left and bottom right keypoint).
 
-## 5. Experimental Tech: Quantization
+## 5. How LLMs Build Their Vocabulary: BPE Tokenization
+
+Most modern LLMs (GPT, LLaMA, Mistral) don't tokenize text by words or characters — they use **Byte Pair Encoding (BPE)**, a compression-inspired algorithm that builds a vocabulary bottom-up.
+
+BPE starts with individual characters and iteratively merges the most frequent adjacent pair into a new token. After thousands of merges, common words become single tokens while rare words are composed of smaller subword pieces. This elegantly handles:
+
+- **Unknown words**: Even a word never seen during training can be represented as a sequence of known subword tokens
+- **Morphology**: Suffixes like "-ing", "-tion", "-er" naturally emerge as their own tokens
+- **Efficiency**: Common words like "the" use one token instead of three characters
+
+Here's a simplified example showing how BPE processes a small corpus:
+
+```text
+Corpus: ["low", "lowest", "lower", "newer", "new"]
+
+Initial vocabulary: a-z (individual characters)
+
+Merge #1: (l, o) → "lo"    (most frequent pair, appears 3 times)
+Merge #2: (lo, w) → "low"  (now most frequent)
+Merge #3: (e, r) → "er"    (tied, pick one)
+
+Final tokenization:
+  low    → ["low"]                 (1 token)
+  lowest → ["low", "e", "s", "t"] (4 tokens)
+  lower  → ["low", "er"]          (2 tokens)
+  newer  → ["n", "e", "w", "er"]  (4 tokens)
+```
+
+I've created a [Manim animation](./scripts/manim_bpe_tokenization.py) that walks through this process visually, step by step. To render it:
+
+```bash
+manim -pql scripts/manim_bpe_tokenization.py BPETokenizationVisualization
+```
+
+## 6. RAG: Retrieval-Augmented Generation
+
+LLMs have a knowledge cutoff and can't access your private data. **Retrieval-Augmented Generation (RAG)** solves this by adding a retrieval step before generation: search a knowledge base for relevant documents, inject them into the prompt, and let the model answer grounded in real sources.
+
+The RAG pipeline has four steps:
+
+1. **Chunk** — Split documents into smaller passages (by sentences, paragraphs, or fixed windows with overlap)
+2. **Embed** — Convert each chunk into a dense vector using an embedding model (e.g., all-MiniLM-L6-v2 produces 384-dimensional vectors)
+3. **Store** — Index the vectors in a vector database (FAISS, Oracle AI Vector Search, Chroma)
+4. **Retrieve & Generate** — At query time, embed the user's question, find the nearest chunk vectors via cosine similarity, and inject the top-k chunks as context in the LLM prompt
+
+```text
+User Query → Embed → Vector Search → Top-K Chunks → Prompt Assembly → LLM Answer
+```
+
+RAG dramatically reduces hallucination and enables LLMs to answer questions about any corpus — company wikis, research papers, codebases — without retraining.
+
+Check out the [interactive RAG notebook](./notebooks/03_rag_vector_search.ipynb) to build a complete RAG pipeline from scratch, including chunking, embedding, similarity search, and prompt assembly.
+
+## 7. Fine-Tuning Data Formats
+
+Pre-trained LLMs are general-purpose text predictors. **Fine-tuning** specializes them for specific tasks, domains, or behaviors. The most overlooked part? Understanding what fine-tuning data actually looks like.
+
+### Supervised Fine-Tuning (SFT)
+
+The simplest approach — provide instruction-response pairs:
+
+```json
+{"instruction": "What is gradient descent?", "input": "", "output": "Gradient descent is an optimization algorithm..."}
+```
+
+### Chat Format (Multi-turn)
+
+Modern chat models use a conversational format with roles:
+
+```json
+{"messages": [
+  {"role": "system", "content": "You are a helpful assistant."},
+  {"role": "user", "content": "What is attention?"},
+  {"role": "assistant", "content": "Attention allows a model to focus on relevant parts..."}
+]}
+```
+
+### RLHF & DPO (Preference Data)
+
+For alignment, annotators rank model outputs. The data format captures preferences:
+
+```json
+{"prompt": "Explain backpropagation.", "chosen": "Detailed, accurate answer...", "rejected": "Vague, oversimplified answer..."}
+```
+
+**Key insight**: Quality > quantity. Meta's LIMA paper showed that 1,000 carefully curated examples can match 52,000+ noisy ones.
+
+Explore the [fine-tuning data formats notebook](./notebooks/04_fine_tuning_data_formats.ipynb) to see all formats in action, learn data quality filtering, and convert raw text into SFT-ready datasets.
+
+## 8. Experimental Tech: Quantization
 
 Quantization is a technique used to reduce the memory usage of NNs. Remember that the information contained in Neural Networks, after a network has been trained for a number of iterations, is a matrix or vector of values representing either the attention weights (in LLMs) or the neurons' weights and biases (for RNNs).
 

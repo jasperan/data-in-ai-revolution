@@ -3,3 +3,6 @@ transformers
 numpy
 matplotlib
 manim
+scikit-learn
+sentence-transformers
+jupyter
