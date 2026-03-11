@@ -1,5 +1,30 @@
 # AI Data in Application Development / Data in the AI Revolution
 
+## Installation
+
+<!-- one-command-install -->
+> **One-command install** — clone, configure, and run in a single step:
+>
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/jasperan/data-in-ai-revolution/main/install.sh | bash
+> ```
+>
+> <details><summary>Advanced options</summary>
+>
+> Override install location:
+> ```bash
+> PROJECT_DIR=/opt/myapp curl -fsSL https://raw.githubusercontent.com/jasperan/data-in-ai-revolution/main/install.sh | bash
+> ```
+>
+> Or install manually:
+> ```bash
+> git clone https://github.com/jasperan/data-in-ai-revolution.git
+> cd data-in-ai-revolution
+> # See below for setup instructions
+> ```
+> </details>
+
+
 ## Introduction
 
 This repository aims to be a guide on all types of data usually found in the realm of Data Science and Artificial Intelligence.
