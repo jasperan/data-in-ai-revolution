@@ -18,22 +18,30 @@ async def test_tui_navigation_search_and_doctor(repo_root):
         await pilot.press("2")
         await pilot.pause()
         assert tabs.active == "map"
+        browser = app.query_one("#map-browser", ResourceBrowser)
+        assert browser.query_one(".browser-list").has_focus
 
         await pilot.press("/")
         await pilot.pause()
-        search = app.query_one("#map-browser", ResourceBrowser).query_one(Input)
+        search = browser.query_one(Input)
         assert search.has_focus
 
         await pilot.press("r", "a", "g")
         await pilot.pause()
-        browser = app.query_one("#map-browser", ResourceBrowser)
         assert browser.selected_resource is not None
         assert "rag" in browser.selected_resource.searchable_text
+        assert "query: rag" in browser.results_summary
+
+        await pilot.press("tab")
+        await pilot.pause()
+        assert browser.query_one(".browser-list").has_focus
+        assert browser.action_text
 
         app.action_show_tab("doctor")
         await pilot.pause()
         assert tabs.active == "doctor"
         table = app.query_one("#doctor-table", DataTable)
+        assert table.has_focus
         assert table.row_count >= 5
 
 
@@ -52,9 +60,15 @@ async def test_tui_launches_selected_lab(repo_root, monkeypatch):
         await pilot.press("3")
         await pilot.pause()
         browser = app.query_one("#labs-browser", ResourceBrowser)
-        browser.refresh_resources("attention")
-        browser.query_one(".browser-list").focus()
-        await pilot.press("enter")
+        assert browser.query_one(".browser-list").has_focus
+
+        await pilot.press("/")
+        await pilot.pause()
+        await pilot.press("a", "t", "t", "e", "n", "t", "i", "o", "n")
+        await pilot.pause()
+        assert browser.visible_count >= 1
+
+        await pilot.press("tab", "enter")
         await pilot.pause()
 
     assert launched

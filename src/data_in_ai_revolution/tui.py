@@ -25,6 +25,7 @@ class DataInAIRevolutionApp(App[None]):
         Binding("3", "show_tab('labs')", "Labs", priority=True),
         Binding("4", "show_tab('doctor')", "Doctor", priority=True),
         Binding("/", "focus_search", "Search", priority=True),
+        Binding("tab", "cycle_focus", "Cycle focus", priority=True),
         Binding("l", "launch_selected", "Launch", priority=True),
         Binding("r", "refresh_catalog", "Refresh", priority=True),
         Binding("d", "refresh_doctor", "Doctor refresh", priority=True),
@@ -51,6 +52,7 @@ class DataInAIRevolutionApp(App[None]):
                     "Workshop curriculum",
                     self.catalog.sections,
                     "Search README topics, concepts, or section highlights",
+                    description="Trace the workshop narrative, inspect section highlights, and use search plus focus cycling to move through the curriculum fast.",
                     id="map-browser",
                 )
             with TabPane("Labs", id="labs"):
@@ -58,6 +60,7 @@ class DataInAIRevolutionApp(App[None]):
                     "Hands-on labs",
                     self.catalog.notebooks + self.catalog.scripts + self.catalog.videos,
                     "Search notebooks, scripts, or rendered videos",
+                    description="Surface runnable notebooks and helper scripts first, then inspect command previews and launch the next step right from the terminal.",
                     id="labs-browser",
                 )
             with TabPane("Doctor", id="doctor"):
@@ -76,6 +79,12 @@ class DataInAIRevolutionApp(App[None]):
 
     def action_show_tab(self, tab: str) -> None:
         self.query_one("#main-tabs", TabbedContent).active = tab
+        if tab in {"map", "labs"}:
+            browser = self._active_browser()
+            if browser is not None:
+                browser.focus_list()
+        elif tab == "doctor":
+            self.query_one("#doctor-table", DataTable).focus()
 
     def action_focus_search(self) -> None:
         browser = self._active_browser()
@@ -83,6 +92,14 @@ class DataInAIRevolutionApp(App[None]):
             self.action_show_tab("map")
             browser = self.query_one("#map-browser", ResourceBrowser)
         browser.focus_search()
+
+    def action_cycle_focus(self) -> None:
+        browser = self._active_browser()
+        if browser is not None:
+            browser.cycle_focus()
+            return
+        if self.query_one("#main-tabs", TabbedContent).active == "doctor":
+            self.query_one("#doctor-table", DataTable).focus()
 
     def action_launch_selected(self) -> None:
         browser = self._active_browser()
@@ -123,7 +140,7 @@ class DataInAIRevolutionApp(App[None]):
         except LaunchError as error:
             self.notify(str(error), severity="error")
             return
-        self.notify(f"Launched: {' '.join(command)}")
+        self.notify(f"Launched from {resource.path}: {' '.join(command)}")
 
     def _populate_doctor_table(self) -> None:
         table = self.query_one("#doctor-table", DataTable)
@@ -154,6 +171,7 @@ class DataInAIRevolutionApp(App[None]):
 
 - **Full-screen Textual TUI** for navigating the workshop like a local product, not a loose pile of files.
 - **Live curriculum browser** built from `README.md`, notebooks, scripts, and videos.
+- **Richer inspectors** with quick facts, highlights, command previews, and clear next-step hints.
 - **Launch recipes** for notebooks and scripts so you can jump from reading to doing.
 - **Environment doctor** for quick checks before demos or workshops.
 
@@ -168,6 +186,7 @@ data-ai-lab
 
 - `1` `2` `3` `4` switch tabs
 - `/` focus search in the active browser
+- `Tab` cycle focus between search and the resource list
 - `Enter` launch the selected notebook or script
 - `l` launch the selected lab manually
 - `d` refresh doctor checks

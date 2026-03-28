@@ -36,6 +36,8 @@
 
 The repo now ships with a full-screen Textual workspace for browsing the workshop, launching labs, and checking your local environment.
 
+It now has a richer inspector too: result counts, quick facts, highlights, command previews, and clearer next-step hints live beside the selected resource.
+
 If you install the package outside a clone, the app falls back to a bundled copy of the workshop assets automatically.
 
 ### Access the system
@@ -77,6 +79,7 @@ python -m data_in_ai_revolution.tui
 |-----|--------|
 | `1` `2` `3` `4` | Jump between Overview, Learning map, Labs, and Doctor |
 | `/` | Focus search in the active browser |
+| `Tab` | Cycle focus between search and the resource list |
 | `Enter` | Launch the selected notebook or script |
 | `l` | Launch the selected lab manually |
 | `d` | Refresh the environment doctor |
@@ -93,9 +96,13 @@ python -m data_in_ai_revolution.tui
 
 ![AI Data Lab learning map](./img/tui-learning-map.svg)
 
+The map view now surfaces search result counts, section highlights, and a quick inspector so you can understand where a concept sits in the workshop before jumping to a lab.
+
 #### Labs launcher
 
 ![AI Data Lab labs launcher](./img/tui-labs.svg)
+
+The labs view now makes runnable entries obvious, shows command previews inline, and keeps the next action visible even when you are filtering aggressively.
 
 #### Environment doctor
 

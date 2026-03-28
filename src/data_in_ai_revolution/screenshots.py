@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from textual.widgets import TabbedContent
+from textual.widgets import Input, TabbedContent
 
 from .catalog import discover_repo_root
 from .tui import DataInAIRevolutionApp
@@ -24,6 +24,8 @@ async def capture_screenshots(output_dir: Path, repo_root: Path | None = None) -
         tabs.active = "map"
         await pilot.pause()
         map_browser = app.query_one("#map-browser", ResourceBrowser)
+        map_search = map_browser.query_one(Input)
+        map_search.value = "rag"
         map_browser.refresh_resources("rag")
         await pilot.pause()
         app.save_screenshot("tui-learning-map.svg", path=str(output_dir))
@@ -31,6 +33,8 @@ async def capture_screenshots(output_dir: Path, repo_root: Path | None = None) -
         tabs.active = "labs"
         await pilot.pause()
         labs_browser = app.query_one("#labs-browser", ResourceBrowser)
+        labs_search = labs_browser.query_one(Input)
+        labs_search.value = "attention"
         labs_browser.refresh_resources("attention")
         await pilot.pause()
         app.save_screenshot("tui-labs.svg", path=str(output_dir))
