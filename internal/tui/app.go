@@ -139,15 +139,32 @@ func (b *browserState) move(delta int) {
 
 func (b *browserState) resultsSummary() string {
 	query := strings.TrimSpace(b.search.Value())
-	summary := fmt.Sprintf("%d results · %d launchable", b.visibleCount(), b.launchableCount())
+	summary := fmt.Sprintf("%d results · %d launchable · focus:%s", b.visibleCount(), b.launchableCount(), b.focus)
 	if query != "" {
 		summary += fmt.Sprintf(" · query: %s", query)
 	}
 	return summary
 }
 
+func (b *browserState) kindBreakdown() string {
+	counts := map[string]int{}
+	for _, resource := range b.visible {
+		counts[resource.Kind]++
+	}
+	parts := []string{}
+	for _, kind := range []string{"section", "notebook", "script", "video"} {
+		if counts[kind] > 0 {
+			parts = append(parts, fmt.Sprintf("%s:%d", kind, counts[kind]))
+		}
+	}
+	if len(parts) == 0 {
+		return "no visible resources"
+	}
+	return strings.Join(parts, " · ")
+}
+
 func (b *browserState) hintText() string {
-	return "/ search · Tab switch focus · ↑/↓ move · Enter open · l launch"
+	return "/ search · Tab focus · ←/→ tabs · PgUp/PgDn jump · ? help"
 }
 
 func (b *browserState) actionText() string {
@@ -156,10 +173,10 @@ func (b *browserState) actionText() string {
 		return "Nothing to open from this state."
 	}
 	if launch.CanLaunch(resource) {
-		return "Press Enter or l to launch this resource from the repo."
+		return "Press Enter or l to launch. Use PgUp/PgDn to jump faster through long lists."
 	}
 	if resource.Kind == "video" {
-		return "Rendered videos stay browse-only here. Open the file directly if you want to watch it."
+		return "Rendered videos stay browse-only here. Open the file directly or use the path in the inspector."
 	}
 	return "Inspect this resource here, then jump to Labs for runnable notebooks and scripts."
 }
@@ -188,6 +205,7 @@ type Model struct {
 	height    int
 	status    string
 	snapshot  bool
+	showHelp  bool
 }
 
 func NewModel(root workspace.Root, snapshot bool) (Model, error) {
@@ -235,9 +253,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if key == "" && len(msg.Runes) > 0 {
 			key = string(msg.Runes)
 		}
+		if m.showHelp {
+			switch key {
+			case "?", "esc":
+				m.showHelp = false
+				m.status = "Help closed"
+				return m, nil
+			case "ctrl+c", "q":
+				return m, tea.Quit
+			default:
+				return m, nil
+			}
+		}
 		if browser := m.activeBrowser(); browser != nil && browser.focus == focusSearch {
 			switch key {
-			case "tab", "esc", "up", "down", "j", "k", "enter", "ctrl+c", "1", "2", "3", "4", "/":
+			case "tab", "esc", "up", "down", "j", "k", "enter", "ctrl+c", "1", "2", "3", "4", "?", "left", "right", "[", "]", "pgup", "pgdown", "home", "end":
 				// allow global navigation keys below
 			case "backspace", "delete":
 				query := []rune(browser.search.Value())
@@ -268,6 +298,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "ctrl+c", "q":
 			return m, tea.Quit
+		case "?":
+			m.showHelp = true
+			m.status = "Help open"
+			return m, nil
+		case "left", "[":
+			m.tab = previousTab(m.tab)
+			m.focusActiveTabDefault()
+			m.status = fmt.Sprintf("Switched to %s", humanTab(m.tab))
+			return m, nil
+		case "right", "]":
+			m.tab = nextTab(m.tab)
+			m.focusActiveTabDefault()
+			m.status = fmt.Sprintf("Switched to %s", humanTab(m.tab))
+			return m, nil
 		case "1":
 			m.tab = tabOverview
 			m.status = "Overview ready"
@@ -307,11 +351,37 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "up", "k":
 			if browser := m.activeBrowser(); browser != nil {
 				browser.move(-1)
+				m.status = fmt.Sprintf("Selected %s", selectedTitle(browser))
 			}
 			return m, nil
 		case "down", "j":
 			if browser := m.activeBrowser(); browser != nil {
 				browser.move(1)
+				m.status = fmt.Sprintf("Selected %s", selectedTitle(browser))
+			}
+			return m, nil
+		case "pgup":
+			if browser := m.activeBrowser(); browser != nil {
+				browser.move(-8)
+				m.status = fmt.Sprintf("Jumped to %s", selectedTitle(browser))
+			}
+			return m, nil
+		case "pgdown":
+			if browser := m.activeBrowser(); browser != nil {
+				browser.move(8)
+				m.status = fmt.Sprintf("Jumped to %s", selectedTitle(browser))
+			}
+			return m, nil
+		case "home", "g":
+			if browser := m.activeBrowser(); browser != nil {
+				browser.selected = 0
+				m.status = fmt.Sprintf("Jumped to %s", selectedTitle(browser))
+			}
+			return m, nil
+		case "end", "G":
+			if browser := m.activeBrowser(); browser != nil && len(browser.visible) > 0 {
+				browser.selected = len(browser.visible) - 1
+				m.status = fmt.Sprintf("Jumped to %s", selectedTitle(browser))
 			}
 			return m, nil
 		case "d":
@@ -394,17 +464,21 @@ func (m Model) View() string {
 
 	contentHeight := maxInt(8, height-5)
 	var content []string
-	switch m.tab {
-	case tabOverview:
-		content = m.renderOverview(width, contentHeight)
-	case tabMap:
-		content = m.renderBrowser(width, contentHeight, m.mapView)
-	case tabLabs:
-		content = m.renderBrowser(width, contentHeight, m.labsView)
-	case tabDoctor:
-		content = m.renderDoctor(width, contentHeight)
-	default:
-		content = []string{"Unknown tab"}
+	if m.showHelp {
+		content = m.renderHelp(width, contentHeight)
+	} else {
+		switch m.tab {
+		case tabOverview:
+			content = m.renderOverview(width, contentHeight)
+		case tabMap:
+			content = m.renderBrowser(width, contentHeight, m.mapView)
+		case tabLabs:
+			content = m.renderBrowser(width, contentHeight, m.labsView)
+		case tabDoctor:
+			content = m.renderDoctor(width, contentHeight)
+		default:
+			content = []string{"Unknown tab"}
+		}
 	}
 	content = fitHeight(content, contentHeight)
 	lines = append(lines, content...)
@@ -419,18 +493,30 @@ func (m Model) renderOverview(width, height int) []string {
 	lines = append(lines, boxed("Overview", width, []string{
 		"The Go Bubble Tea app now sits beside the legacy Python/Textual version.",
 		"Browse the curriculum, inspect labs, launch notebooks or scripts, and run a doctor pass from one terminal surface.",
+		"Use ? at any time for a focused help view.",
 	}))
 	lines = append(lines, "")
-	lines = append(lines, boxed("Snapshot", width, []string{
+	left := boxedWithHeight("Snapshot", width/2-1, []string{
 		fmt.Sprintf("Resources: %d", stats.Resources),
-		fmt.Sprintf("Sections: %d · Notebooks: %d · Scripts: %d · Videos: %d", stats.Sections, stats.Notebooks, stats.Scripts, stats.Videos),
+		fmt.Sprintf("Sections: %d", stats.Sections),
+		fmt.Sprintf("Notebooks: %d", stats.Notebooks),
+		fmt.Sprintf("Scripts: %d", stats.Scripts),
+		fmt.Sprintf("Videos: %d", stats.Videos),
 		fmt.Sprintf("Workspace root: %s", m.workspace.Dir),
-	}))
+		fmt.Sprintf("Asset source: %s", m.workspace.Source),
+	}, 10)
+	right := boxedWithHeight("Views", width-width/2-2, []string{
+		"Learning Map: concept-first browsing with highlights and README context.",
+		"Labs: runnable notebooks and helper scripts with direct launch previews.",
+		"Doctor: repo readiness, runtimes, external commands, and git cleanliness.",
+		"Navigation: numbers switch tabs, arrows or brackets cycle, Tab swaps search/list focus.",
+	}, 10)
+	lines = append(lines, strings.Join(joinColumns(left, right, 3), "\n"))
 	lines = append(lines, "")
 	lines = append(lines, boxed("Keybindings", width, []string{
-		"1 2 3 4 switch tabs",
-		"/ focus search · Tab cycle search/list · ↑/↓ move selection",
-		"Enter or l launch notebooks and scripts · d refresh doctor · r refresh catalog · q quit",
+		"1 2 3 4 switch tabs · ←/→ or [ ] cycle tabs",
+		"/ focus search · Tab cycle search/list · ↑/↓ move · PgUp/PgDn jump · g/G first/last",
+		"Enter or l launch notebooks and scripts · d refresh doctor · r refresh catalog · ? help · q quit",
 	}))
 	return flattenBoxes(lines)
 }
@@ -477,8 +563,8 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 	}
 
 	headerBox := boxed(browser.title, width, []string{browser.description})
-	searchLine := truncate(browser.search.View(), width)
-	toolbarLine := truncate(browser.resultsSummary()+"   "+browser.hintText(), width)
+	searchLine := truncate(fmt.Sprintf("Focus: %s · %s", browser.focus, browser.search.View()), width)
+	toolbarLine := truncate(browser.resultsSummary()+" · "+browser.kindBreakdown()+"   "+browser.hintText(), width)
 	leftBox := boxedWithHeight("Resources", leftWidth, listLines, height-10)
 	rightBox := boxedWithHeight("Inspector", rightWidth, detailLines, height-10)
 	joined := joinColumns(leftBox, rightBox, 3)
@@ -492,11 +578,49 @@ func (m Model) renderDoctor(width, height int) []string {
 		"Press d to refresh the checks without leaving the terminal.",
 	}))
 	lines = append(lines, "")
+	passCount, warnCount, failCount := doctorCounts(m.doctor)
+	summary := boxed("Summary", width, []string{
+		fmt.Sprintf("Pass: %d · Warn: %d · Fail: %d", passCount, warnCount, failCount),
+		"Warnings are usually about optional lab dependencies or a dirty branch, not the core TUI.",
+	})
+	lines = append(lines, summary)
+	lines = append(lines, "")
 	rows := []string{}
 	for _, check := range m.doctor {
 		rows = append(rows, fmt.Sprintf("%s %-18s %s", check.Icon(), truncate(check.Name, 18), check.Detail))
 	}
-	lines = append(lines, strings.Join(boxedWithHeight("Checks", width, rows, height-7), "\n"))
+	lines = append(lines, strings.Join(boxedWithHeight("Checks", width, rows, height-11), "\n"))
+	return flattenBoxes(lines)
+}
+
+func (m Model) renderHelp(width, height int) []string {
+	lines := []string{}
+	activeTab := humanTab(m.tab)
+	content := []string{
+		fmt.Sprintf("Context: %s", activeTab),
+		"",
+		"Global keys",
+		"- 1 2 3 4: jump to tabs",
+		"- ←/→ or [ ]: cycle tabs",
+		"- ?: toggle this help",
+		"- q: quit",
+		"",
+		"Browser keys",
+		"- /: focus search",
+		"- Tab: swap focus between search and list",
+		"- ↑/↓ or j/k: move selection",
+		"- PgUp/PgDn: jump through long lists",
+		"- g/G: jump to first or last item",
+		"- Enter or l: launch notebook/script",
+		"- Esc: return focus to the list",
+		"",
+		"Doctor keys",
+		"- d: rerun the environment checks",
+		"",
+		fmt.Sprintf("Workspace source: %s", m.workspace.Source),
+		"Press ? or Esc to close help.",
+	}
+	lines = append(lines, strings.Join(boxedWithHeight("Keyboard Help", width, content, height-1), "\n"))
 	return flattenBoxes(lines)
 }
 
@@ -519,6 +643,72 @@ func renderTabs(active tabID) string {
 		}
 	}
 	return strings.Join(parts, "  ")
+}
+
+func previousTab(current tabID) tabID {
+	order := []tabID{tabOverview, tabMap, tabLabs, tabDoctor}
+	for index, tab := range order {
+		if tab == current {
+			if index == 0 {
+				return order[len(order)-1]
+			}
+			return order[index-1]
+		}
+	}
+	return tabOverview
+}
+
+func nextTab(current tabID) tabID {
+	order := []tabID{tabOverview, tabMap, tabLabs, tabDoctor}
+	for index, tab := range order {
+		if tab == current {
+			return order[(index+1)%len(order)]
+		}
+	}
+	return tabOverview
+}
+
+func humanTab(tab tabID) string {
+	switch tab {
+	case tabOverview:
+		return "Overview"
+	case tabMap:
+		return "Learning Map"
+	case tabLabs:
+		return "Labs"
+	case tabDoctor:
+		return "Doctor"
+	default:
+		return string(tab)
+	}
+}
+
+func selectedTitle(browser *browserState) string {
+	resource, ok := browser.selectedResource()
+	if !ok {
+		return "nothing"
+	}
+	return resource.Title
+}
+
+func doctorCounts(checks []doctor.Check) (passCount, warnCount, failCount int) {
+	for _, check := range checks {
+		switch check.Status {
+		case "pass":
+			passCount++
+		case "warn":
+			warnCount++
+		case "fail":
+			failCount++
+		}
+	}
+	return
+}
+
+func (m *Model) focusActiveTabDefault() {
+	if browser := m.activeBrowser(); browser != nil {
+		browser.focusList()
+	}
 }
 
 func humanKind(kind string) string {

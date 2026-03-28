@@ -34,7 +34,7 @@
 
 The repo now ships with a full-screen **Go + Bubble Tea** workspace for browsing the workshop, launching labs, and checking your local environment.
 
-It has a richer inspector too: result counts, quick facts, highlights, command previews, and clearer next-step hints live beside the selected resource.
+It has a richer inspector too: result counts, focus state, quick facts, highlights, command previews, clearer next-step hints, and an in-app help view for fast orientation.
 
 If you run the binary outside a clone, it falls back to a bundled copy of the workshop assets automatically.
 
@@ -81,13 +81,17 @@ go test ./...
 | Key | Action |
 |-----|--------|
 | `1` `2` `3` `4` | Jump between Overview, Learning map, Labs, and Doctor |
+| `[` `]` or `←` `→` | Cycle between tabs |
 | `/` | Focus search in the active browser |
 | `Tab` | Cycle focus between search and the resource list |
-| `↑` `↓` | Move through the active resource list |
+| `↑` `↓` or `j` `k` | Move through the active resource list |
+| `PgUp` `PgDn` | Jump through longer lists faster |
+| `g` `G` | Jump to the first or last visible result |
 | `Enter` | Launch the selected notebook or script |
 | `l` | Launch the selected lab manually |
 | `d` | Refresh the environment doctor |
 | `r` | Rebuild the catalog from repo files |
+| `?` | Open or close the focused help view |
 | `q` | Quit |
 
 ### TUI visuals
@@ -100,13 +104,13 @@ go test ./...
 
 ![AI Data Lab learning map](./img/tui-learning-map.svg)
 
-The map view now surfaces search result counts, section highlights, and a quick inspector so you can understand where a concept sits in the workshop before jumping to a lab.
+The map view now surfaces search result counts, focus state, section highlights, and a quick inspector so you can understand where a concept sits in the workshop before jumping to a lab.
 
 #### Labs launcher
 
 ![AI Data Lab labs launcher](./img/tui-labs.svg)
 
-The labs view now makes runnable entries obvious, shows command previews inline, and keeps the next action visible even when you are filtering aggressively.
+The labs view now makes runnable entries obvious, shows command previews inline, supports faster page jumps, and keeps the next action visible even when you are filtering aggressively.
 
 #### Environment doctor
 

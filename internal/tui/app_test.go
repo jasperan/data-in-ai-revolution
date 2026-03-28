@@ -52,11 +52,55 @@ func TestModelNavigationAndFiltering(t *testing.T) {
 		t.Fatalf("expected list focus after tab, got %s", model.mapView.focus)
 	}
 
+	updated, _ = model.Update(keyMsg("]"))
+	model = updated.(Model)
+	if model.tab != tabLabs {
+		t.Fatalf("expected labs tab after ], got %s", model.tab)
+	}
+
+	updated, _ = model.Update(keyMsg("["))
+	model = updated.(Model)
+	if model.tab != tabMap {
+		t.Fatalf("expected map tab after [, got %s", model.tab)
+	}
+
 	view := model.View()
 	if !strings.Contains(view, "Workshop curriculum") {
 		t.Fatalf("expected workshop curriculum in view")
 	}
 	if !strings.Contains(view, "query: rag") {
 		t.Fatalf("expected query text in view")
+	}
+	if !strings.Contains(view, "Focus: list") {
+		t.Fatalf("expected focus marker in view")
+	}
+}
+
+func TestHelpOverlay(t *testing.T) {
+	root, err := workspace.Ensure("")
+	if err != nil {
+		t.Fatalf("ensure workspace: %v", err)
+	}
+	model, err := NewModel(root, true)
+	if err != nil {
+		t.Fatalf("new model: %v", err)
+	}
+	model.width = 120
+	model.height = 36
+
+	updated, _ := model.Update(keyMsg("?"))
+	model = updated.(Model)
+	if !model.showHelp {
+		t.Fatal("expected help overlay to open")
+	}
+	view := model.View()
+	if !strings.Contains(view, "Keyboard Help") {
+		t.Fatalf("expected keyboard help in view")
+	}
+
+	updated, _ = model.Update(keyMsg("?"))
+	model = updated.(Model)
+	if model.showHelp {
+		t.Fatal("expected help overlay to close")
 	}
 }

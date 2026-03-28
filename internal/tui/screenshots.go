@@ -90,13 +90,25 @@ func toSVG(content string) string {
 	builder.WriteString(`<style>`)
 	builder.WriteString(`text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:18px;fill:#dbe9ff;}`)
 	builder.WriteString(`.muted{fill:#93c5ff;}`)
+	builder.WriteString(`.accent{fill:#9fe4df;}`)
+	builder.WriteString(`.warm{fill:#ffd27d;}`)
+	builder.WriteString(`.title{fill:#ffffff;font-weight:700;}`)
 	builder.WriteString(`</style>`)
 	for index, line := range lines {
 		escaped := escapeXML(line)
 		escaped = strings.ReplaceAll(escaped, " ", "&#160;")
 		klass := ""
-		if index == 0 || strings.Contains(line, "Status:") || strings.Contains(line, "results ·") {
+		switch {
+		case index == 0 || strings.Contains(line, "Status:") || strings.Contains(line, "results ·"):
 			klass = ` class="muted"`
+		case strings.Contains(line, "Focus:"):
+			klass = ` class="accent"`
+		case strings.Contains(line, "> [") || strings.Contains(line, " >"):
+			klass = ` class="accent"`
+		case strings.HasPrefix(strings.TrimSpace(line), "┌"):
+			klass = ` class="title"`
+		case strings.Contains(line, "› ") || strings.Contains(line, "▶ "):
+			klass = ` class="warm"`
 		}
 		builder.WriteString(fmt.Sprintf(`<text%s x="%d" y="%d">%s</text>`, klass, padding, padding+18+index*lineHeight, escaped))
 	}
