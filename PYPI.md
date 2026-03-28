@@ -1,16 +1,10 @@
 # data-in-ai-revolution
 
-A Textual-powered terminal lab for exploring the **Data in the AI Revolution** workshop.
+A Python fallback package for exploring the **Data in the AI Revolution** workshop.
 
-It ships with:
+The repository now ships a primary **Go + Bubble Tea** TUI, but this package still provides the legacy Python/Textual interface plus bundled workshop assets for non-editable installs.
 
-- a full-screen TUI for browsing the curriculum
-- searchable notebook, script, and video catalogs
-- launch helpers for hands-on labs
-- an environment doctor for workshop readiness checks
-- bundled workshop assets for non-editable installs
-
-## Install from source
+## Install the Python fallback from source
 
 ```bash
 git clone https://github.com/jasperan/data-in-ai-revolution.git
@@ -18,16 +12,7 @@ cd data-in-ai-revolution
 python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -e .
-.venv/bin/data-ai-lab
-```
-
-## Commands
-
-```bash
-data-ai-lab
-data-ai-lab doctor
-data-ai-lab catalog
-data-ai-lab screenshots --output-dir img
+python -m data_in_ai_revolution.tui
 ```
 
 ## Project docs

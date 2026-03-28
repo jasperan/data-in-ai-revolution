@@ -3,7 +3,7 @@
 ## Installation
 
 <!-- one-command-install -->
-> **One-command install**: clone the repo, create a local `.venv`, install the Textual lab, and print the launch command.
+> **One-command install**: clone the repo, build the Go + Bubble Tea terminal lab, and print the launch command. Optional Python lab dependencies stay opt-in.
 >
 > ```bash
 > curl -fsSL https://raw.githubusercontent.com/jasperan/data-in-ai-revolution/main/install.sh | bash
@@ -25,32 +25,32 @@
 > ```bash
 > git clone https://github.com/jasperan/data-in-ai-revolution.git
 > cd data-in-ai-revolution
-> python3 -m venv .venv
-> .venv/bin/python -m pip install --upgrade pip
-> .venv/bin/python -m pip install -e .
-> .venv/bin/data-ai-lab
+> go build -o ./bin/data-ai-lab ./cmd/data-ai-lab-go
+> ./bin/data-ai-lab
 > ```
 > </details>
 
 ## Terminal Lab (TUI)
 
-The repo now ships with a full-screen Textual workspace for browsing the workshop, launching labs, and checking your local environment.
+The repo now ships with a full-screen **Go + Bubble Tea** workspace for browsing the workshop, launching labs, and checking your local environment.
 
-It now has a richer inspector too: result counts, quick facts, highlights, command previews, and clearer next-step hints live beside the selected resource.
+It has a richer inspector too: result counts, quick facts, highlights, command previews, and clearer next-step hints live beside the selected resource.
 
-If you install the package outside a clone, the app falls back to a bundled copy of the workshop assets automatically.
+If you run the binary outside a clone, it falls back to a bundled copy of the workshop assets automatically.
+
+The older Python/Textual app is still in the repo as a migration fallback, but the Go TUI is now the primary interface.
 
 ### Access the system
 
 ```bash
-# From a cloned repo
-.venv/bin/data-ai-lab
+# From a cloned repo after building the binary
+go build -o ./bin/data-ai-lab ./cmd/data-ai-lab-go
+./bin/data-ai-lab
 
-# Or after activating the virtual environment
-source .venv/bin/activate
-data-ai-lab
+# Or run it without building an artifact
+go run ./cmd/data-ai-lab-go
 
-# Module form also works
+# Legacy Python/Textual fallback
 python -m data_in_ai_revolution.tui
 ```
 
@@ -58,19 +58,22 @@ python -m data_in_ai_revolution.tui
 
 ```bash
 # Re-run the environment doctor in plain text
-.venv/bin/data-ai-lab doctor
+go run ./cmd/data-ai-lab-go doctor
 
 # Dump the discovered catalog
-.venv/bin/data-ai-lab catalog
+go run ./cmd/data-ai-lab-go catalog
 
 # Refresh the screenshot set used below and in frontend-slides/
-.venv/bin/data-ai-lab screenshots --output-dir img
+go run ./cmd/data-ai-lab-go screenshots --output-dir img
 ```
 
 ### Verify the new system
 
 ```bash
-.venv/bin/python -m pytest
+go test ./...
+
+# Optional legacy Python fallback verification
+[ -x .venv/bin/python ] && .venv/bin/python -m pytest
 ```
 
 ### TUI keybindings
@@ -80,6 +83,7 @@ python -m data_in_ai_revolution.tui
 | `1` `2` `3` `4` | Jump between Overview, Learning map, Labs, and Doctor |
 | `/` | Focus search in the active browser |
 | `Tab` | Cycle focus between search and the resource list |
+| `↑` `↓` | Move through the active resource list |
 | `Enter` | Launch the selected notebook or script |
 | `l` | Launch the selected lab manually |
 | `d` | Refresh the environment doctor |
