@@ -56,12 +56,30 @@ clone_repo() {
 check_prereqs() {
     info "Checking prerequisites..."
     command_exists git || fail "Git is required — https://git-scm.com/"
+    command_exists python3 || fail "Python 3 is required"
+    python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' \
+        || fail "Python 3.10 or newer is required"
     success "Git $(git --version | cut -d' ' -f3)"
+    success "Python $(python3 --version | cut -d' ' -f2)"
 }
 
 install_deps() {
     cd "$INSTALL_DIR"
-    success "No additional dependencies to install"
+    info "Creating virtual environment..."
+    python3 -m venv .venv
+
+    info "Installing terminal lab..."
+    .venv/bin/python -m pip install --upgrade pip >/dev/null
+    .venv/bin/python -m pip install -e .
+
+    if [ "${INSTALL_LABS:-0}" = "1" ]; then
+        info "Installing notebook and visualization dependencies..."
+        .venv/bin/python -m pip install -r scripts/requirements.txt
+    else
+        warn "Skipping heavy lab dependencies (set INSTALL_LABS=1 to install them)"
+    fi
+
+    success "Environment ready"
 }
 
 main() {
@@ -79,7 +97,9 @@ print_done() {
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     echo -e "  ${BOLD}Location:${NC}  $INSTALL_DIR"
-    echo -e "  ${BOLD}Next:${NC}     See README.md for usage instructions"
+    echo -e "  ${BOLD}Activate:${NC}  source $INSTALL_DIR/.venv/bin/activate"
+    echo -e "  ${BOLD}Run TUI:${NC}   $INSTALL_DIR/.venv/bin/data-ai-lab"
+    echo -e "  ${BOLD}Next:${NC}      See README.md for notebook and screenshot instructions"
     echo ""
 }
 

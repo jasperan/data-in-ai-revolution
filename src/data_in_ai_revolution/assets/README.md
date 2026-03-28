@@ -36,8 +36,6 @@
 
 The repo now ships with a full-screen Textual workspace for browsing the workshop, launching labs, and checking your local environment.
 
-If you install the package outside a clone, the app falls back to a bundled copy of the workshop assets automatically.
-
 ### Access the system
 
 ```bash

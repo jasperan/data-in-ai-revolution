@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Data Lab TUI Tour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===========================================
+       THEME TOKENS
+       =========================================== */
+    :root {
+      --bg-primary: #07111f;
+      --bg-secondary: #0d1b2f;
+      --bg-panel: rgba(11, 22, 38, 0.82);
+      --text-primary: #edf4ff;
+      --text-secondary: #9eb7da;
+      --accent: #63b3ff;
+      --accent-alt: #7cf7d4;
+      --accent-warm: #ffca7a;
+      --border: rgba(99, 179, 255, 0.28);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+      --font-display: 'Manrope', sans-serif;
+      --font-body: 'Manrope', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-normal: 0.6s;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ===========================================
+       VIEWPORT FITTING: MANDATORY BASE STYLES
+       Include this ENTIRE file in every presentation.
+       These styles ensure slides fit exactly in the viewport.
+       =========================================== */
+
+    /* 1. Lock html/body to viewport */
+    html, body {
+        height: 100%;
+        overflow-x: hidden;
+    }
+
+    html {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+    }
+
+    /* 2. Each slide = exact viewport height */
+    .slide {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
+        overflow: hidden; /* CRITICAL: Prevent ANY overflow */
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    /* 3. Content container with flex for centering */
+    .slide-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-height: 100%;
+        overflow: hidden; /* Double-protection against overflow */
+        padding: var(--slide-padding);
+    }
+
+    /* 4. ALL typography uses clamp() for responsive scaling */
+    :root {
+        /* Titles scale from mobile to desktop */
+        --title-size: clamp(1.5rem, 5vw, 4rem);
+        --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+        --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+
+        /* Body text */
+        --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+        --small-size: clamp(0.65rem, 1vw, 0.875rem);
+
+        /* Spacing scales with viewport */
+        --slide-padding: clamp(1rem, 4vw, 4rem);
+        --content-gap: clamp(0.5rem, 2vw, 2rem);
+        --element-gap: clamp(0.25rem, 1vw, 1rem);
+    }
+
+    /* 5. Cards/containers use viewport-relative max sizes */
+    .card, .container, .content-box {
+        max-width: min(90vw, 1000px);
+        max-height: min(80vh, 700px);
+    }
+
+    /* 6. Lists auto-scale with viewport */
+    .feature-list, .bullet-list {
+        gap: clamp(0.4rem, 1vh, 1rem);
+    }
+
+    .feature-list li, .bullet-list li {
+        font-size: var(--body-size);
+        line-height: 1.4;
+    }
+
+    /* 7. Grids adapt to available space */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+        gap: clamp(0.5rem, 1.5vw, 1rem);
+    }
+
+    /* 8. Images constrained to viewport */
+    img, .image-container {
+        max-width: 100%;
+        max-height: min(50vh, 400px);
+        object-fit: contain;
+    }
+
+    /* ===========================================
+       RESPONSIVE BREAKPOINTS
+       Aggressive scaling for smaller viewports
+       =========================================== */
+
+    /* Short viewports (< 700px height) */
+    @media (max-height: 700px) {
+        :root {
+            --slide-padding: clamp(0.75rem, 3vw, 2rem);
+            --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+            --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+            --h2-size: clamp(1rem, 3vw, 1.75rem);
+        }
+    }
+
+    /* Very short viewports (< 600px height) */
+    @media (max-height: 600px) {
+        :root {
+            --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+            --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+            --title-size: clamp(1.1rem, 4vw, 2rem);
+            --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+        }
+
+        /* Hide non-essential elements */
+        .nav-dots, .keyboard-hint, .decorative {
+            display: none;
+        }
+    }
+
+    /* Extremely short (landscape phones, < 500px height) */
+    @media (max-height: 500px) {
+        :root {
+            --slide-padding: clamp(0.4rem, 2vw, 1rem);
+            --title-size: clamp(1rem, 3.5vw, 1.5rem);
+            --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+            --body-size: clamp(0.65rem, 1vw, 0.85rem);
+        }
+    }
+
+    /* Narrow viewports (< 600px width) */
+    @media (max-width: 600px) {
+        :root {
+            --title-size: clamp(1.25rem, 7vw, 2.5rem);
+        }
+
+        /* Stack grids vertically */
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ===========================================
+       REDUCED MOTION
+       Respect user preferences
+       =========================================== */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.2s !important;
+        }
+
+        html {
+            scroll-behavior: auto;
+        }
+    }
+
+    /* ===========================================
+       BASE PRESENTATION STYLES
+       =========================================== */
+    body {
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at top left, rgba(99, 179, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(124, 247, 212, 0.12), transparent 25%),
+        linear-gradient(180deg, #07111f 0%, #091523 100%);
+      color: var(--text-primary);
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 56px 56px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+      z-index: 1000;
+      box-shadow: 0 0 24px rgba(99, 179, 255, 0.65);
+    }
+
+    .nav-dots {
+      position: fixed;
+      right: clamp(0.75rem, 2vw, 1.5rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      z-index: 1000;
+    }
+
+    .nav-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .nav-dot.active {
+      background: var(--accent);
+      transform: scale(1.25);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(124, 247, 212, 0.28);
+      background: rgba(8, 20, 36, 0.7);
+      color: var(--accent-alt);
+      font-size: var(--small-size);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: clamp(0.75rem, 2vh, 1.25rem);
+    }
+
+    h1, h2, h3 {
+      font-family: var(--font-display);
+      line-height: 1.02;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 5rem);
+      max-width: 12ch;
+      margin-bottom: 0.8rem;
+    }
+
+    h2 {
+      font-size: var(--h2-size);
+      margin-bottom: 0.75rem;
+    }
+
+    p, li {
+      font-size: var(--body-size);
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    .lede {
+      max-width: 70ch;
+      font-size: clamp(0.95rem, 1.8vw, 1.25rem);
+    }
+
+    .hero-grid,
+    .two-column {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: clamp(1rem, 3vw, 2rem);
+      align-items: center;
+    }
+
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(1rem, 2vw, 1.4rem);
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(0.75rem, 1.2vw, 1rem);
+      max-width: 540px;
+    }
+
+    .metric {
+      padding: 1rem;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: clamp(1.4rem, 3vw, 2.4rem);
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .bullet-list {
+      list-style: none;
+      display: grid;
+      gap: 0.75rem;
+      max-width: 64ch;
+      margin-top: 1rem;
+    }
+
+    .bullet-list li {
+      padding-left: 1.3rem;
+      position: relative;
+    }
+
+    .bullet-list li::before {
+      content: "";
+      position: absolute;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      left: 0;
+      top: 0.55rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-alt));
+      box-shadow: 0 0 16px rgba(99, 179, 255, 0.4);
+    }
+
+    .shot {
+      width: 100%;
+      max-height: min(58vh, 720px);
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: #06101d;
+      box-shadow: 0 20px 90px rgba(0, 0, 0, 0.4);
+    }
+
+    .caption {
+      margin-top: 0.8rem;
+      font-size: var(--small-size);
+      color: #c7dcfa;
+    }
+
+    .command-block {
+      width: min(100%, 760px);
+      padding: 1rem 1.2rem;
+      border-radius: 24px;
+      background: rgba(3, 8, 16, 0.92);
+      border: 1px solid rgba(124, 247, 212, 0.22);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      font-family: var(--font-mono);
+      font-size: clamp(0.78rem, 1.2vw, 1rem);
+      line-height: 1.6;
+      color: #d8f8ff;
+      white-space: pre-wrap;
+    }
+
+    .footer-note {
+      margin-top: 1rem;
+      color: var(--text-secondary);
+      font-size: var(--small-size);
+    }
+
+    .slide-counter {
+      position: absolute;
+      top: clamp(1rem, 2vw, 1.4rem);
+      right: clamp(1rem, 2vw, 1.4rem);
+      font-family: var(--font-mono);
+      font-size: var(--small-size);
+      color: #98badf;
+      z-index: 3;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity var(--duration-normal) var(--ease-out-expo),
+                  transform var(--duration-normal) var(--ease-out-expo);
+    }
+
+    .slide.visible .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal:nth-child(1) { transition-delay: 0.08s; }
+    .reveal:nth-child(2) { transition-delay: 0.16s; }
+    .reveal:nth-child(3) { transition-delay: 0.24s; }
+    .reveal:nth-child(4) { transition-delay: 0.32s; }
+    .reveal:nth-child(5) { transition-delay: 0.40s; }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-bar"></div>
+  <nav class="nav-dots"></nav>
+
+  <!-- ===========================================
+       Slide 1: Title
+       =========================================== -->
+  <section class="slide visible">
+    <div class="slide-counter">01 / 06</div>
+    <div class="slide-content hero-grid">
+      <div>
+        <div class="eyebrow reveal">Textual TUI rollout</div>
+        <h1 class="reveal">AI Data Lab turned this repo into a terminal product.</h1>
+        <p class="lede reveal">The new surface turns a giant workshop README, notebooks, scripts, and videos into one full-screen interface you can navigate, search, launch, and verify from the terminal.</p>
+      </div>
+      <div class="card reveal">
+        <div class="metrics">
+          <div class="metric"><strong>8+</strong><span>README concept sections</span></div>
+          <div class="metric"><strong>4</strong><span>Interactive notebooks</span></div>
+          <div class="metric"><strong>5+</strong><span>Launchable scripts</span></div>
+          <div class="metric"><strong>4</strong><span>Captured TUI screens</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       Slide 2: Why it matters
+       =========================================== -->
+  <section class="slide">
+    <div class="slide-counter">02 / 06</div>
+    <div class="slide-content">
+      <div class="eyebrow reveal">What changed</div>
+      <h2 class="reveal">The repo now behaves like a lab, not just a document dump.</h2>
+      <ul class="bullet-list">
+        <li class="reveal">A live curriculum browser reads the workshop structure straight from the repo.</li>
+        <li class="reveal">Notebook and script entries come with launch commands, so the next step is always obvious.</li>
+        <li class="reveal">An environment doctor flags missing packages and external tools before a demo goes sideways.</li>
+        <li class="reveal">Screenshots and a slide deck keep the UX visible in docs, reviews, and presentations.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       Slide 3: Overview screenshot
+       =========================================== -->
+  <section class="slide">
+    <div class="slide-counter">03 / 06</div>
+    <div class="slide-content">
+      <div class="eyebrow reveal">Overview tab</div>
+      <h2 class="reveal">The landing screen explains the system fast.</h2>
+      <img class="shot reveal" src="../img/tui-overview.svg" alt="Overview tab screenshot" />
+      <p class="caption reveal">Quick stats, commands, and keybindings are all visible on first launch.</p>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       Slide 4: Learning map screenshot
+       =========================================== -->
+  <section class="slide">
+    <div class="slide-counter">04 / 06</div>
+    <div class="slide-content">
+      <div class="eyebrow reveal">Learning map</div>
+      <h2 class="reveal">Search the concepts, then drill into the workshop path.</h2>
+      <img class="shot reveal" src="../img/tui-learning-map.svg" alt="Learning map screenshot" />
+      <p class="caption reveal">README sections, highlights, paths, and related commands stay in one focused view.</p>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       Slide 5: Labs and doctor
+       =========================================== -->
+  <section class="slide">
+    <div class="slide-counter">05 / 06</div>
+    <div class="slide-content two-column">
+      <div class="card reveal">
+        <div class="eyebrow">Labs launcher</div>
+        <img class="shot" src="../img/tui-labs.svg" alt="Labs tab screenshot" />
+      </div>
+      <div class="card reveal">
+        <div class="eyebrow">Doctor tab</div>
+        <img class="shot" src="../img/tui-doctor.svg" alt="Doctor tab screenshot" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================
+       Slide 6: Access commands
+       =========================================== -->
+  <section class="slide">
+    <div class="slide-counter">06 / 06</div>
+    <div class="slide-content">
+      <div class="eyebrow reveal">Access pattern</div>
+      <h2 class="reveal">Launch it from the repo and keep going.</h2>
+      <div class="command-block reveal">python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e .
+.venv/bin/data-ai-lab</div>
+      <p class="footer-note reveal">Arrow keys, Page Up, Page Down, Space, mouse wheel, or nav dots all move through the deck. The TUI itself uses 1, 2, 3, 4, slash, d, r, l, and q.</p>
+    </div>
+  </section>
+
+  <script>
+    /* ===========================================
+       PRESENTATION CONTROLLER
+       =========================================== */
+    class SlidePresentation {
+      constructor() {
+        this.slides = Array.from(document.querySelectorAll('.slide'));
+        this.progressBar = document.querySelector('.progress-bar');
+        this.navDots = document.querySelector('.nav-dots');
+        this.currentSlide = 0;
+        this.setupIntersectionObserver();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.setupNavDots();
+        this.updateProgressBar();
+      }
+
+      setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              this.currentSlide = this.slides.indexOf(entry.target);
+              this.updateProgressBar();
+              this.updateNavDots();
+            }
+          });
+        }, { threshold: 0.55 });
+
+        this.slides.forEach((slide) => observer.observe(slide));
+      }
+
+      setupKeyboardNav() {
+        document.addEventListener('keydown', (event) => {
+          if (['ArrowDown', 'PageDown', ' '].includes(event.key)) {
+            event.preventDefault();
+            this.goToSlide(this.currentSlide + 1);
+          }
+          if (['ArrowUp', 'PageUp'].includes(event.key)) {
+            event.preventDefault();
+            this.goToSlide(this.currentSlide - 1);
+          }
+          if (event.key === 'Home') {
+            event.preventDefault();
+            this.goToSlide(0);
+          }
+          if (event.key === 'End') {
+            event.preventDefault();
+            this.goToSlide(this.slides.length - 1);
+          }
+        });
+      }
+
+      setupTouchNav() {
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (event) => {
+          touchStartY = event.changedTouches[0].screenY;
+        }, { passive: true });
+
+        window.addEventListener('touchend', (event) => {
+          const touchEndY = event.changedTouches[0].screenY;
+          const delta = touchStartY - touchEndY;
+          if (Math.abs(delta) < 50) return;
+          this.goToSlide(this.currentSlide + (delta > 0 ? 1 : -1));
+        }, { passive: true });
+      }
+
+      setupWheelNav() {
+        let wheelLocked = false;
+        window.addEventListener('wheel', (event) => {
+          if (wheelLocked) return;
+          if (Math.abs(event.deltaY) < 20) return;
+          wheelLocked = true;
+          this.goToSlide(this.currentSlide + (event.deltaY > 0 ? 1 : -1));
+          setTimeout(() => { wheelLocked = false; }, 450);
+        }, { passive: true });
+      }
+
+      setupNavDots() {
+        this.navDots.innerHTML = '';
+        this.slides.forEach((_, index) => {
+          const dot = document.createElement('button');
+          dot.className = 'nav-dot';
+          dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+          dot.addEventListener('click', () => this.goToSlide(index));
+          this.navDots.appendChild(dot);
+        });
+        this.updateNavDots();
+      }
+
+      updateNavDots() {
+        const dots = Array.from(this.navDots.children);
+        dots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === this.currentSlide);
+        });
+      }
+
+      updateProgressBar() {
+        const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+        this.progressBar.style.width = `${progress}%`;
+      }
+
+      goToSlide(index) {
+        const clamped = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides[clamped].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    new SlidePresentation();
+  </script>
+</body>
+</html>

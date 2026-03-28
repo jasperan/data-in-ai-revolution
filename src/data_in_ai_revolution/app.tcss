@@ -1,0 +1,129 @@
+Screen {
+    background: #07111f;
+    color: #edf4ff;
+}
+
+Header {
+    background: #0f1a2c;
+    color: #edf4ff;
+}
+
+Footer {
+    background: #0c1524;
+    color: #d7e6ff;
+}
+
+TabbedContent {
+    height: 1fr;
+}
+
+TabPane {
+    padding: 1 2;
+}
+
+#hero {
+    background: #0d1f35;
+    color: #f4f8ff;
+    border: round #4a8ad1;
+    padding: 1 2;
+    margin-bottom: 1;
+    height: auto;
+    text-style: bold;
+}
+
+#overview-grid {
+    height: auto;
+    margin-bottom: 1;
+}
+
+.stat-card {
+    width: 1fr;
+    height: 7;
+    margin-right: 1;
+    padding: 1 2;
+    border: round #315985;
+    background: #0a1628;
+    color: #edf4ff;
+    content-align: center middle;
+}
+
+#overview-markdown {
+    height: 1fr;
+    border: round #315985;
+    padding: 1 2;
+    background: #091321;
+}
+
+.resource-browser {
+    height: 1fr;
+    border: round #315985;
+    padding: 1;
+    background: #091321;
+}
+
+.browser-search {
+    margin-bottom: 1;
+}
+
+.browser-body {
+    height: 1fr;
+}
+
+.browser-list {
+    width: 38%;
+    height: 1fr;
+    border: tall #315985;
+    background: #06101d;
+}
+
+.browser-detail-pane {
+    width: 62%;
+    height: 1fr;
+    margin-left: 1;
+}
+
+.browser-kicker {
+    height: auto;
+    color: #8fb5e8;
+    margin-bottom: 1;
+}
+
+.browser-detail {
+    height: 1fr;
+    border: round #24425f;
+    padding: 1;
+    background: #0b1626;
+}
+
+.browser-command {
+    height: auto;
+    border: round #24425f;
+    margin-top: 1;
+    padding: 1;
+    background: #08111d;
+    color: #8fd3ff;
+}
+
+#doctor-intro {
+    height: auto;
+    border: round #315985;
+    padding: 1 2;
+    margin-bottom: 1;
+    background: #091321;
+}
+
+#doctor-table {
+    height: 1fr;
+    border: round #315985;
+    background: #091321;
+}
+
+#doctor-table > .datatable--header {
+    text-style: bold;
+}
+
+OptionList:focus,
+Input:focus,
+DataTable:focus {
+    border: tall #63b3ff;
+}

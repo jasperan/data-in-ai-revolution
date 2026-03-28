@@ -1,0 +1,10 @@
+include LICENSE
+include PYPI.md
+include README.md
+recursive-include data *
+recursive-include notebooks *.ipynb
+recursive-include scripts *.py *.txt
+recursive-include video *.mp4
+recursive-include frontend-slides *.html
+recursive-include img *
+recursive-include src/data_in_ai_revolution/assets *

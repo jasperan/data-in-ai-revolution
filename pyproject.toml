@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "data-in-ai-revolution"
+version = "0.2.0"
+description = "Terminal learning lab for AI data, LLMs, computer vision, RAG, and fine-tuning"
+readme = { file = "PYPI.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Nacho Martinez" },
+]
+dependencies = [
+  "textual>=0.58",
+  "rich>=13.7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",
+]
+labs = [
+  "torch",
+  "transformers",
+  "numpy",
+  "matplotlib",
+  "manim",
+  "scikit-learn",
+  "sentence-transformers",
+  "jupyter",
+]
+
+[project.scripts]
+data-ai-lab = "data_in_ai_revolution.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+data_in_ai_revolution = [
+  "*.tcss",
+  "assets/README.md",
+  "assets/notebooks/*.ipynb",
+  "assets/scripts/*.py",
+  "assets/scripts/*.txt",
+  "assets/video/*.mp4",
+  "assets/frontend-slides/*.html",
+  "assets/img/tui-*.svg",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
