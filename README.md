@@ -1,4 +1,42 @@
-# AI Data in Application Development / Data in the AI Revolution
+<div align="center">
+
+# Data in the AI Revolution
+
+[![GitHub Pages](https://img.shields.io/badge/Interactive_Guide-Live_Demo-7c3aed?style=for-the-badge&logo=github)](https://jasperan.github.io/data-in-ai-revolution/)
+[![License](https://img.shields.io/badge/License-UPL_1.0-blue?style=for-the-badge)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Go](https://img.shields.io/badge/Go-1.24-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js)](https://nextjs.org)
+
+**A comprehensive, interactive guide to data in AI — from predictive ML and tokenization to transformers, RAG, fine-tuning, and quantization.**
+
+[**Launch Interactive Guide**](https://jasperan.github.io/data-in-ai-revolution/) · [Terminal Lab](#terminal-lab-tui) · [Notebooks](#interactive-notebooks) · [Contributing](#contributors)
+
+</div>
+
+---
+
+## Interactive Guide (New)
+
+Explore every concept hands-on in the browser — no setup required:
+
+**[jasperan.github.io/data-in-ai-revolution](https://jasperan.github.io/data-in-ai-revolution/)**
+
+| Widget | Concept | What You Can Do |
+|--------|---------|-----------------|
+| **Predictive ML Pipeline** | Feature engineering, encoding, model inference | Adjust customer data, see predictions update in real time |
+| **BPE Tokenization** | Byte Pair Encoding algorithm | Type text, step through merges, watch vocabulary build |
+| **Embeddings Explorer** | Dense vector representations, cosine similarity | Toggle words, see semantic clusters and similarity heatmaps |
+| **Multi-Head Attention** | Self-attention, query-key-value mechanics | Switch heads, hover tokens to see attention patterns |
+| **Transformer Architecture** | Encoder, decoder, encoder-decoder variants | Toggle architectures, click components, animate data flow |
+| **Computer Vision** | Object detection, bounding boxes, confidence | Drag threshold slider, toggle detection vs. segmentation |
+| **RAG Pipeline** | Retrieval-Augmented Generation end-to-end | Ask questions, watch 6-stage pipeline animate |
+| **Fine-Tuning Formats** | SFT, RLHF, DPO data structures | Edit examples, compare JSON formats across approaches |
+| **Model Quantization** | FP32→INT8 compression, error analysis | Toggle bit widths, inspect per-weight quantization error |
+
+Built with Next.js 16 + React 19 + TypeScript + Tailwind CSS. Static export deployed to GitHub Pages.
+
+---
 
 ## Installation
 
