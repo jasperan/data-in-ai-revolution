@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Seeded hash for deterministic but varying similarity scores       */
@@ -46,8 +46,6 @@ const STAGES = [
   { key: "prompt_assembly", label: "Prompt Assembly" },
   { key: "response", label: "LLM Response" },
 ] as const;
-
-type StageKey = (typeof STAGES)[number]["key"];
 
 /* ------------------------------------------------------------------ */
 /*  Compute pipeline data for a given query + runId                    */
@@ -119,12 +117,17 @@ function useTypewriter(text: string, active: boolean, speed = 18) {
   const idxRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  /* Reset when deactivated (render-time state adjustment) */
+  if (!active && displayed !== "") {
+    setDisplayed("");
+  }
+
   useEffect(() => {
     if (!active) {
-      setDisplayed("");
       idxRef.current = 0;
       return;
     }
+    idxRef.current = 0;
     timerRef.current = setInterval(() => {
       idxRef.current += 1;
       if (idxRef.current > text.length) {
@@ -144,8 +147,14 @@ function useTypewriter(text: string, active: boolean, speed = 18) {
 /* ------------------------------------------------------------------ */
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
+const emptySubscribe = () => () => {};
+
 export function RagPipelineWidget() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [query, setQuery] = useState("What are transformers in AI?");
   const [runId, setRunId] = useState(0);
   const [running, setRunning] = useState(false);
@@ -157,7 +166,6 @@ export function RagPipelineWidget() {
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
-    setMounted(true);
     return () => {
       timersRef.current.forEach(clearTimeout);
     };

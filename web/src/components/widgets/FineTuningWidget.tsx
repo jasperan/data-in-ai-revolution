@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -286,11 +286,14 @@ function ScoreBar({ score, color, label }: { score: number; color: string; label
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 
+const emptySubscribe = () => () => {};
+
 export function FineTuningWidget() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   const [activeTab, setActiveTab] = useState<TabKey>("sft");
   const [sftExamples, setSftExamples] = useState<SftExample[]>(INITIAL_SFT);

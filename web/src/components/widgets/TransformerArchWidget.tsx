@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -108,7 +108,6 @@ const TEXT_COLOR = "#e4e4e7";
 const TEXT_MUTED = "#a1a1aa";
 const BORDER_COLOR = "rgba(255,255,255,0.10)";
 const BG_BOX = "#1a1a1f";
-const BG_BLOCK = "rgba(255,255,255,0.02)";
 const MASK_COLOR = "#f472b6";
 
 /* ------------------------------------------------------------------ */
@@ -453,18 +452,20 @@ function getBlockBrackets(
 /* ------------------------------------------------------------------ */
 /*  Main Widget                                                       */
 /* ------------------------------------------------------------------ */
+const emptySubscribe = () => () => {};
+
 export function TransformerArchWidget() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [mode, setMode] = useState<ArchMode>("decoder");
   const [layerCount, setLayerCount] = useState(2);
   const [selected, setSelected] = useState<string | null>(null);
   const [animating, setAnimating] = useState(false);
   const [animProgress, setAnimProgress] = useState(0);
   const animRef = useRef<number>(0);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const { rects, totalHeight, flowStops } = computeLayout(mode, layerCount);
   const brackets = getBlockBrackets(mode, layerCount, rects);

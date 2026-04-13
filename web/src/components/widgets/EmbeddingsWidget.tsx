@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Seeded random (deterministic, Math.sin-based)                     */
@@ -493,17 +493,19 @@ function SimilarityMatrix({ words }: MatrixProps) {
 /* ------------------------------------------------------------------ */
 /*  Main Widget                                                       */
 /* ------------------------------------------------------------------ */
+const emptySubscribe = () => () => {};
+
 export function EmbeddingsWidget() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [activeWords, setActiveWords] = useState<WordEntry[]>(() =>
     ALL_WORDS.slice(0, 8)
   );
   const [view, setView] = useState<"scatter" | "matrix">("scatter");
   const [hoveredWord, setHoveredWord] = useState<string | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const activeSet = useMemo(() => new Set(activeWords.map((w) => w.word)), [activeWords]);
 

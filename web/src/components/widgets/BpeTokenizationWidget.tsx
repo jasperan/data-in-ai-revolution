@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo, useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 /* ------------------------------------------------------------------ */
 /*  Color palette for token chips                                     */
@@ -92,11 +94,11 @@ interface MergeRecord {
 const DEFAULT_TEXT = "The lowest point of the lower ground";
 
 export function BpeTokenizationWidget() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   /* ---- state ---- */
   const [inputText, setInputText] = useState(DEFAULT_TEXT);
@@ -270,19 +272,19 @@ export function BpeTokenizationWidget() {
   }, []);
 
   /* ---- token color mapping ---- */
-  const tokenColorMap = useRef(new Map<string, number>());
-  let colorIdx = 0;
-  for (const word of corpus) {
-    for (const token of word) {
-      if (!tokenColorMap.current.has(token)) {
-        tokenColorMap.current.set(
-          token,
-          colorIdx % TOKEN_COLORS.length
-        );
-        colorIdx++;
+  const tokenColorMap = useMemo(() => {
+    const map = new Map<string, number>();
+    let idx = 0;
+    for (const word of corpus) {
+      for (const token of word) {
+        if (!map.has(token)) {
+          map.set(token, idx % TOKEN_COLORS.length);
+          idx++;
+        }
       }
     }
-  }
+    return map;
+  }, [corpus]);
 
   /* ---- render ---- */
   if (!mounted) {
@@ -395,7 +397,7 @@ export function BpeTokenizationWidget() {
               )}
               {word.map((token, ti) => {
                 const cIndex =
-                  tokenColorMap.current.get(token) ?? 0;
+                  tokenColorMap.get(token) ?? 0;
                 const isNewlyMerged =
                   highlightedMerge !== null &&
                   merges.length > 0 &&

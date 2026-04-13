@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Static data                                                        */
@@ -104,15 +104,17 @@ function entropyLabel(ent: number): string {
 /*  Main export                                                        */
 /* ------------------------------------------------------------------ */
 
+const emptySubscribe = () => () => {};
+
 export function AttentionHeadsWidget() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [activeHead, setActiveHead] = useState(0);
   const [hoveredToken, setHoveredToken] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"single" | "all">("single");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleHover = useCallback((i: number) => setHoveredToken(i), []);
   const handleLeave = useCallback(() => setHoveredToken(null), []);

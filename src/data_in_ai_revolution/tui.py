@@ -5,7 +5,7 @@ from pathlib import Path
 from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal
 from textual.widgets import DataTable, Footer, Header, Markdown, Static, TabbedContent, TabPane
 
 from .catalog import Catalog, Resource, build_catalog, discover_repo_root

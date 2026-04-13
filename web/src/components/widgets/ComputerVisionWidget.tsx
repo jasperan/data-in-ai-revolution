@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  Detection data                                                     */
@@ -468,16 +468,18 @@ function formatJsonDetections(
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
+const emptySubscribe = () => () => {};
+
 export function ComputerVisionWidget() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [threshold, setThreshold] = useState(0.5);
   const [mode, setMode] = useState<DetectionMode>("objects");
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   /* ---- draw ---- */
   const draw = useCallback(() => {

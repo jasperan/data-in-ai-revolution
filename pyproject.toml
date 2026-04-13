@@ -56,6 +56,13 @@ data_in_ai_revolution = [
   "assets/img/tui-*.svg",
 ]
 
+[tool.ruff.lint]
+select = ["F"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/data_in_ai_revolution/assets/scripts/manim_*.py" = ["F403", "F405"]
+"src/data_in_ai_revolution/assets/notebooks/*.ipynb" = ["F401", "F403", "F405", "F541", "F811", "F841"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
