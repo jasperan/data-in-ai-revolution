@@ -511,10 +511,13 @@ export function TransformerArchWidget() {
     const idx = animProgress * (totalStops - 1);
     const lower = Math.floor(idx);
     const upper = Math.min(lower + 1, totalStops - 1);
+    const lowerStop = flowStops[lower];
+    const upperStop = flowStops[upper];
+    if (!lowerStop || !upperStop) return null;
     const t = idx - lower;
     return {
-      x: flowStops[lower].x + (flowStops[upper].x - flowStops[lower].x) * t,
-      y: flowStops[lower].y + (flowStops[upper].y - flowStops[lower].y) * t + svgPad,
+      x: lowerStop.x + (upperStop.x - lowerStop.x) * t,
+      y: lowerStop.y + (upperStop.y - lowerStop.y) * t + svgPad,
     };
   })();
 
