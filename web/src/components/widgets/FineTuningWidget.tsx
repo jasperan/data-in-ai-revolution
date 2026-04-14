@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useSyncExternalStore } from "react";
+import React, { useState, useCallback } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -116,8 +117,8 @@ const DATA_QUALITY_TIPS = [
 
 const TAB_COLORS: Record<TabKey, string> = {
   sft: "#f472b6",   // pink
-  rlhf: "#a78bfa",  // purple
-  dpo: "#22d3ee",   // cyan
+  rlhf: "#9886c4",  // purple
+  dpo: "#5ba8c8",   // cyan
 };
 
 /* ------------------------------------------------------------------ */
@@ -286,14 +287,8 @@ function ScoreBar({ score, color, label }: { score: number; color: string; label
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
 
-const emptySubscribe = () => () => {};
-
 export function FineTuningWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
 
   const [activeTab, setActiveTab] = useState<TabKey>("sft");
   const [sftExamples, setSftExamples] = useState<SftExample[]>(INITIAL_SFT);
@@ -788,9 +783,9 @@ export function FineTuningWidget() {
           <div
             className="text-[11px] font-mono px-3 py-2 rounded-lg"
             style={{
-              background: "rgba(34,211,238,0.06)",
-              border: "1px solid rgba(34,211,238,0.15)",
-              color: "#22d3ee",
+              background: "rgba(91,168,200,0.06)",
+              border: "1px solid rgba(91,168,200,0.15)",
+              color: "#5ba8c8",
             }}
           >
             No reward model needed -- DPO learns preferences directly from the

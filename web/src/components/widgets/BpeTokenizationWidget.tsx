@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect, useMemo, useSyncExternalStore } from "react";
-
-const emptySubscribe = () => () => {};
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Color palette for token chips                                     */
 /* ------------------------------------------------------------------ */
 const TOKEN_COLORS = [
-  "rgba(249,115,22,0.25)", // orange
-  "rgba(34,211,238,0.25)", // cyan
+  "rgba(232,115,74,0.25)", // orange
+  "rgba(91,168,200,0.25)", // cyan
   "rgba(167,139,250,0.25)", // purple
   "rgba(74,222,128,0.25)", // green
   "rgba(244,114,182,0.25)", // pink
@@ -21,8 +20,8 @@ const TOKEN_COLORS = [
 ];
 
 const TOKEN_BORDERS = [
-  "rgba(249,115,22,0.5)",
-  "rgba(34,211,238,0.5)",
+  "rgba(232,115,74,0.5)",
+  "rgba(91,168,200,0.5)",
   "rgba(167,139,250,0.5)",
   "rgba(74,222,128,0.5)",
   "rgba(244,114,182,0.5)",
@@ -94,11 +93,7 @@ interface MergeRecord {
 const DEFAULT_TEXT = "The lowest point of the lower ground";
 
 export function BpeTokenizationWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
 
   /* ---- state ---- */
   const [inputText, setInputText] = useState(DEFAULT_TEXT);
@@ -317,7 +312,7 @@ export function BpeTokenizationWidget() {
             Vocab{" "}
             <span
               className="font-semibold"
-              style={{ color: "#f97316" }}
+              style={{ color: "#e8734a" }}
             >
               {vocabSize}
             </span>
@@ -332,7 +327,7 @@ export function BpeTokenizationWidget() {
           value={inputText}
           onChange={handleInputChange}
           placeholder="Type text to tokenize..."
-          className="w-full bg-[rgba(255,255,255,0.04)] border border-border rounded-lg px-3 py-2 font-mono text-sm text-foreground focus:outline-none focus:border-[#f97316] transition-colors"
+          className="w-full bg-[rgba(255,255,255,0.04)] border border-border rounded-lg px-3 py-2 font-mono text-sm text-foreground focus:outline-none focus:border-[#e8734a] transition-colors"
           spellCheck={false}
         />
       </div>
@@ -357,8 +352,8 @@ export function BpeTokenizationWidget() {
           style={{
             opacity: isDone ? 0.4 : 1,
             cursor: isDone ? "not-allowed" : "pointer",
-            borderColor: isAnimating ? "#f97316" : undefined,
-            color: isAnimating ? "#f97316" : undefined,
+            borderColor: isAnimating ? "#e8734a" : undefined,
+            color: isAnimating ? "#e8734a" : undefined,
           }}
         >
           {isAnimating ? "Running..." : "Auto"}
@@ -412,7 +407,7 @@ export function BpeTokenizationWidget() {
                       border: `1px solid ${TOKEN_BORDERS[cIndex % TOKEN_BORDERS.length]}`,
                       color: "#e4e4e7",
                       boxShadow: isNewlyMerged
-                        ? "0 0 8px rgba(249,115,22,0.4)"
+                        ? "0 0 8px rgba(232,115,74,0.4)"
                         : "none",
                       transform: isNewlyMerged
                         ? "scale(1.08)"
@@ -470,7 +465,7 @@ export function BpeTokenizationWidget() {
                       className="transition-colors duration-300"
                       style={{
                         background: isHighlighted
-                          ? "rgba(249,115,22,0.1)"
+                          ? "rgba(232,115,74,0.1)"
                           : i % 2 === 0
                             ? "transparent"
                             : "rgba(255,255,255,0.02)",
@@ -499,9 +494,9 @@ export function BpeTokenizationWidget() {
                         <span
                           className="inline-flex items-center px-1.5 py-0.5 rounded"
                           style={{
-                            background: "rgba(249,115,22,0.2)",
+                            background: "rgba(232,115,74,0.2)",
                             border:
-                              "1px solid rgba(249,115,22,0.35)",
+                              "1px solid rgba(232,115,74,0.35)",
                             color: "#fb923c",
                           }}
                         >
@@ -510,7 +505,7 @@ export function BpeTokenizationWidget() {
                       </td>
                       <td
                         className="px-3 py-1.5 text-right"
-                        style={{ color: "#f97316" }}
+                        style={{ color: "#e8734a" }}
                       >
                         {m.frequency}
                       </td>
@@ -526,9 +521,9 @@ export function BpeTokenizationWidget() {
       {/* Empty state hint */}
       {merges.length === 0 && stepCount === 0 && (
         <div className="text-xs text-muted-foreground font-mono text-center py-4 opacity-60">
-          Press <span style={{ color: "#f97316" }}>Step</span> to begin
+          Press <span style={{ color: "#e8734a" }}>Step</span> to begin
           merging the most frequent character pairs, or{" "}
-          <span style={{ color: "#f97316" }}>Auto</span> to animate all
+          <span style={{ color: "#e8734a" }}>Auto</span> to animate all
           steps.
         </div>
       )}

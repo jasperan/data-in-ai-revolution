@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Detection data                                                     */
@@ -28,17 +29,17 @@ const DETECTIONS: Detection[] = [
     class: "person",
     confidence: 0.89,
     bbox: [280, 120, 80, 180],
-    color: "#22d3ee",
-    colorRgba: "rgba(34,211,238,0.25)",
-    colorFill: "rgba(34,211,238,0.35)",
+    color: "#5ba8c8",
+    colorRgba: "rgba(91,168,200,0.25)",
+    colorFill: "rgba(91,168,200,0.35)",
   },
   {
     class: "dog",
     confidence: 0.72,
     bbox: [420, 260, 70, 50],
-    color: "#f97316",
-    colorRgba: "rgba(249,115,22,0.25)",
-    colorFill: "rgba(249,115,22,0.35)",
+    color: "#e8734a",
+    colorRgba: "rgba(232,115,74,0.25)",
+    colorFill: "rgba(232,115,74,0.35)",
   },
   {
     class: "traffic_light",
@@ -468,14 +469,8 @@ function formatJsonDetections(
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-const emptySubscribe = () => () => {};
-
 export function ComputerVisionWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [threshold, setThreshold] = useState(0.5);
   const [mode, setMode] = useState<DetectionMode>("objects");

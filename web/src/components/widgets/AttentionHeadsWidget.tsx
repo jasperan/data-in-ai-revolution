@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useSyncExternalStore } from "react";
+import React, { useState, useCallback } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Static data                                                        */
@@ -10,8 +11,8 @@ const TOKENS = ["The", "cat", "sat", "on", "the", "mat"];
 const N = TOKENS.length;
 
 const HEAD_COLORS: string[] = [
-  "#f97316", // Head 1 orange
-  "#22d3ee", // Head 2 cyan
+  "#e8734a", // Head 1 orange
+  "#5ba8c8", // Head 2 cyan
   "#4ade80", // Head 3 green
   "#f472b6", // Head 4 pink
 ];
@@ -104,14 +105,8 @@ function entropyLabel(ent: number): string {
 /*  Main export                                                        */
 /* ------------------------------------------------------------------ */
 
-const emptySubscribe = () => () => {};
-
 export function AttentionHeadsWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
   const [activeHead, setActiveHead] = useState(0);
   const [hoveredToken, setHoveredToken] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"single" | "all">("single");
@@ -146,7 +141,7 @@ export function AttentionHeadsWidget() {
 
       {/* Title */}
       <div className="mb-4">
-        <h3 className="text-lg font-semibold mb-1" style={{ color: "#a78bfa" }}>
+        <h3 className="text-lg font-semibold mb-1" style={{ color: "#9886c4" }}>
           Self-Attention Heads
         </h3>
         <p className="text-sm text-muted-foreground">
@@ -197,10 +192,10 @@ export function AttentionHeadsWidget() {
             className="btn-mono text-xs px-3 py-1.5 rounded-md border transition-all duration-150"
             style={{
               borderColor:
-                viewMode === mode ? "#a78bfa" : "rgba(255,255,255,0.1)",
+                viewMode === mode ? "#9886c4" : "rgba(255,255,255,0.1)",
               background:
                 viewMode === mode ? "rgba(167,139,250,0.15)" : "transparent",
-              color: viewMode === mode ? "#a78bfa" : "rgba(255,255,255,0.5)",
+              color: viewMode === mode ? "#9886c4" : "rgba(255,255,255,0.5)",
             }}
           >
             {mode === "single" ? "Single Head" : "All Heads"}

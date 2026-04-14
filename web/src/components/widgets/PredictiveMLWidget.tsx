@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -51,9 +52,9 @@ const AMBER_BORDER = "rgba(251,191,36,0.5)";
 
 const FEATURE_IMPORTANCES: FeatureImportance[] = [
   { name: "Income", value: 35, color: "#fbbf24" },
-  { name: "Age", value: 25, color: "#f97316" },
-  { name: "Previous Cars", value: 20, color: "#22d3ee" },
-  { name: "City", value: 12, color: "#a78bfa" },
+  { name: "Age", value: 25, color: "#e8734a" },
+  { name: "Previous Cars", value: 20, color: "#5ba8c8" },
+  { name: "City", value: 12, color: "#9886c4" },
   { name: "Age Group", value: 8, color: "#4ade80" },
 ];
 
@@ -351,11 +352,7 @@ function FeatureBar({
 /* ------------------------------------------------------------------ */
 
 export function PredictiveMLWidget() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useClientMounted();
 
   /* ---- State ---- */
   const [customerData, setCustomerData] = useState<CustomerData>({
@@ -844,23 +841,23 @@ export function PredictiveMLWidget() {
                 }}
               >
                 <div>
-                  <span style={{ color: "#a78bfa" }}>&quot;name&quot;</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>&quot;name&quot;</span>:{" "}
                   <span style={{ color: "#4ade80" }}>&quot;{customerData.name}&quot;</span>
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>&quot;age&quot;</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>&quot;age&quot;</span>:{" "}
                   <span style={{ color: AMBER }}>{customerData.age}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>&quot;income&quot;</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>&quot;income&quot;</span>:{" "}
                   <span style={{ color: AMBER }}>{customerData.income}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>&quot;prev_cars&quot;</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>&quot;prev_cars&quot;</span>:{" "}
                   <span style={{ color: AMBER }}>{customerData.previousCars}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>&quot;city&quot;</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>&quot;city&quot;</span>:{" "}
                   <span style={{ color: "#4ade80" }}>&quot;{customerData.city}&quot;</span>
                 </div>
               </div>
@@ -883,17 +880,17 @@ export function PredictiveMLWidget() {
                 }}
               >
                 <div>
-                  <span style={{ color: "#22d3ee" }}>age_group</span>:{" "}
+                  <span style={{ color: "#5ba8c8" }}>age_group</span>:{" "}
                   <span style={{ color: "#4ade80" }}>&quot;{derivedFeatures.age_group}&quot;</span>
                 </div>
                 <div>
-                  <span style={{ color: "#22d3ee" }}>income_bracket</span>:{" "}
+                  <span style={{ color: "#5ba8c8" }}>income_bracket</span>:{" "}
                   <span style={{ color: "#4ade80" }}>
                     &quot;{derivedFeatures.income_bracket}&quot;
                   </span>
                 </div>
                 <div>
-                  <span style={{ color: "#22d3ee" }}>car_history_score</span>:{" "}
+                  <span style={{ color: "#5ba8c8" }}>car_history_score</span>:{" "}
                   <span style={{ color: AMBER }}>
                     {derivedFeatures.car_history_score}
                   </span>
@@ -924,15 +921,15 @@ export function PredictiveMLWidget() {
                   name &rarr; dropped
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>age_norm</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>age_norm</span>:{" "}
                   <span style={{ color: AMBER }}>{encodedFeatures.age_normalized}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>income_norm</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>income_norm</span>:{" "}
                   <span style={{ color: AMBER }}>{encodedFeatures.income_normalized}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#a78bfa" }}>car_score</span>:{" "}
+                  <span style={{ color: "#9886c4" }}>car_score</span>:{" "}
                   <span style={{ color: AMBER }}>
                     {encodedFeatures.car_history_score}
                   </span>

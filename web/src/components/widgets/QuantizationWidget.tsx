@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Seeded random for deterministic weight generation                  */
@@ -179,10 +180,7 @@ function errorToBg(err: number, maxErr: number): string {
 /* ------------------------------------------------------------------ */
 
 export function QuantizationWidget() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useClientMounted();
 
   /* ---- state ---- */
   const [seed, setSeed] = useState(42);

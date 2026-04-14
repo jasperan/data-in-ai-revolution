@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, useMemo, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Seeded random (deterministic, Math.sin-based)                     */
@@ -24,7 +25,7 @@ const GROUP_COLORS: Record<string, string> = {
   animals: "#4ade80",
   colors: "#f472b6",
   actions: "#fbbf24",
-  tech: "#22d3ee",
+  tech: "#5ba8c8",
 };
 
 const GROUP_LABELS: Record<string, string> = {
@@ -117,7 +118,6 @@ function ScatterPlot({ words, hoveredWord, onHover }: ScatterProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
-  const dragStart = useRef({ x: 0, y: 0 });
   const [canvasSize, setCanvasSize] = useState({ w: 600, h: 400 });
 
   // Responsive sizing
@@ -206,7 +206,7 @@ function ScatterPlot({ words, hoveredWord, onHover }: ScatterProps) {
         ctx.beginPath();
         ctx.moveTo(hx, hy);
         ctx.lineTo(nx, ny);
-        ctx.strokeStyle = "rgba(34,211,238,0.35)";
+        ctx.strokeStyle = "rgba(91,168,200,0.35)";
         ctx.lineWidth = 1.5;
         ctx.setLineDash([4, 4]);
         ctx.stroke();
@@ -217,7 +217,7 @@ function ScatterPlot({ words, hoveredWord, onHover }: ScatterProps) {
         const midX = (hx + nx) / 2;
         const midY = (hy + ny) / 2;
         ctx.font = "500 10px 'JetBrains Mono', monospace";
-        ctx.fillStyle = "rgba(34,211,238,0.7)";
+        ctx.fillStyle = "rgba(91,168,200,0.7)";
         ctx.textAlign = "center";
         ctx.fillText(sim.toFixed(2), midX, midY - 5);
       }
@@ -304,7 +304,6 @@ function ScatterPlot({ words, hoveredWord, onHover }: ScatterProps) {
       const hit = hitTest(mx, my);
       if (!hit) {
         setDragging(true);
-        dragStart.current = { x: e.clientX, y: e.clientY };
       }
     },
     [hitTest]
@@ -453,7 +452,7 @@ function SimilarityMatrix({ words }: MatrixProps) {
                       {" / "}
                       <span style={{ color: GROUP_COLORS[colW.group] }}>{colW.word}</span>
                       {": "}
-                      <span style={{ color: "#22d3ee", fontWeight: 600 }}>{sim.toFixed(3)}</span>
+                      <span style={{ color: "#5ba8c8", fontWeight: 600 }}>{sim.toFixed(3)}</span>
                     </div>
                   )}
                 </div>
@@ -493,14 +492,8 @@ function SimilarityMatrix({ words }: MatrixProps) {
 /* ------------------------------------------------------------------ */
 /*  Main Widget                                                       */
 /* ------------------------------------------------------------------ */
-const emptySubscribe = () => () => {};
-
 export function EmbeddingsWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
   const [activeWords, setActiveWords] = useState<WordEntry[]>(() =>
     ALL_WORDS.slice(0, 8)
   );
@@ -664,8 +657,8 @@ export function EmbeddingsWidget() {
           style={{
             marginTop: 12,
             padding: "8px 12px",
-            background: "rgba(34,211,238,0.06)",
-            border: "1px solid rgba(34,211,238,0.15)",
+            background: "rgba(91,168,200,0.06)",
+            border: "1px solid rgba(91,168,200,0.15)",
             borderRadius: 8,
             fontFamily: "var(--font-mono)",
             fontSize: "0.72rem",
@@ -675,7 +668,7 @@ export function EmbeddingsWidget() {
             gap: 12,
           }}
         >
-          <span style={{ color: "#22d3ee", fontWeight: 600 }}>
+          <span style={{ color: "#5ba8c8", fontWeight: 600 }}>
             {hoveredWord}
           </span>
           <span style={{ color: "var(--muted-foreground)" }}>similarities:</span>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback, useSyncExternalStore } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Seeded hash for deterministic but varying similarity scores       */
@@ -147,14 +148,8 @@ function useTypewriter(text: string, active: boolean, speed = 18) {
 /* ------------------------------------------------------------------ */
 /*  Main component                                                     */
 /* ------------------------------------------------------------------ */
-const emptySubscribe = () => () => {};
-
 export function RagPipelineWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
   const [query, setQuery] = useState("What are transformers in AI?");
   const [runId, setRunId] = useState(0);
   const [running, setRunning] = useState(false);

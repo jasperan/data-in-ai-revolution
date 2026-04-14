@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useClientMounted } from "@/hooks/useClientMounted";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -128,7 +129,7 @@ function getBlockComponents(
     return [
       { id: "mha", label: "Multi-Head Attention", color: ACCENT, infoKey: "multi-head-attention" },
       { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-      { id: "ffn", label: "Feed-Forward Network", color: "#a78bfa", infoKey: "ffn" },
+      { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
       { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
     ];
   }
@@ -136,7 +137,7 @@ function getBlockComponents(
     return [
       { id: "mma", label: "Masked Attention", color: MASK_COLOR, infoKey: "masked-attention" },
       { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-      { id: "ffn", label: "Feed-Forward Network", color: "#a78bfa", infoKey: "ffn" },
+      { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
       { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
     ];
   }
@@ -145,7 +146,7 @@ function getBlockComponents(
     return [
       { id: "mha", label: "Multi-Head Attention", color: ACCENT, infoKey: "multi-head-attention" },
       { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-      { id: "ffn", label: "Feed-Forward Network", color: "#a78bfa", infoKey: "ffn" },
+      { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
       { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
     ];
   }
@@ -153,9 +154,9 @@ function getBlockComponents(
   return [
     { id: "mma", label: "Masked Attention", color: MASK_COLOR, infoKey: "masked-attention" },
     { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-    { id: "xattn", label: "Cross-Attention", color: "#22d3ee", infoKey: "cross-attention" },
+    { id: "xattn", label: "Cross-Attention", color: "#5ba8c8", infoKey: "cross-attention" },
     { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-    { id: "ffn", label: "Feed-Forward Network", color: "#a78bfa", infoKey: "ffn" },
+    { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
     { id: "an3", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
   ];
 }
@@ -244,7 +245,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Encoder Output",
-      color: "#22d3ee",
+      color: "#5ba8c8",
     });
     encY += BOX_H + LAYER_GAP;
 
@@ -303,7 +304,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Output Logits",
-      color: "#f97316",
+      color: "#e8734a",
     });
     decY += BOX_H + LAYER_GAP;
 
@@ -380,7 +381,7 @@ function computeLayout(
     w: BOX_W,
     h: BOX_H,
     label: "Output Logits",
-    color: "#f97316",
+    color: "#e8734a",
   });
   flowStops.push({ x: cx + BOX_W / 2, y: y + BOX_H / 2 });
   y += BOX_H + LAYER_GAP;
@@ -452,14 +453,8 @@ function getBlockBrackets(
 /* ------------------------------------------------------------------ */
 /*  Main Widget                                                       */
 /* ------------------------------------------------------------------ */
-const emptySubscribe = () => () => {};
-
 export function TransformerArchWidget() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
+  const mounted = useClientMounted();
   const [mode, setMode] = useState<ArchMode>("decoder");
   const [layerCount, setLayerCount] = useState(2);
   const [selected, setSelected] = useState<string | null>(null);
@@ -729,14 +724,14 @@ export function TransformerArchWidget() {
                       y1={encOut.y + encOut.h / 2}
                       x2={ca.x}
                       y2={ca.y + ca.h / 2}
-                      stroke="rgba(34,211,238,0.3)"
+                      stroke="rgba(91,168,200,0.3)"
                       strokeWidth={1.5}
                       strokeDasharray="6,4"
                     />
                     {/* arrowhead */}
                     <polygon
                       points={`${ca.x},${ca.y + ca.h / 2} ${ca.x - 7},${ca.y + ca.h / 2 - 4} ${ca.x - 7},${ca.y + ca.h / 2 + 4}`}
-                      fill="rgba(34,211,238,0.5)"
+                      fill="rgba(91,168,200,0.5)"
                     />
                   </g>
                 ));
@@ -956,7 +951,7 @@ export function TransformerArchWidget() {
                 >
                   Output
                 </div>
-                <div style={{ color: "#f97316", fontSize: "0.65rem" }}>
+                <div style={{ color: "#e8734a", fontSize: "0.65rem" }}>
                   {selectedInfo.outputShape}
                 </div>
               </div>
