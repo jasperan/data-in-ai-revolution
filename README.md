@@ -8,7 +8,7 @@
 [![Go](https://img.shields.io/badge/Go-1.24-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=next.js)](https://nextjs.org)
 
-**A comprehensive, interactive guide to data in AI — from predictive ML and tokenization to transformers, RAG, fine-tuning, and quantization.**
+**A comprehensive, interactive guide to data in AI, from predictive ML and tokenization to transformers, RAG, fine-tuning, and quantization.**
 
 [**Launch Interactive Guide**](https://jasperan.github.io/data-in-ai-revolution/) · [Terminal Lab](#terminal-lab-tui) · [Notebooks](#interactive-notebooks) · [Contributing](#contributors)
 
@@ -18,7 +18,7 @@
 
 ## Interactive Guide (New)
 
-Explore every concept hands-on in the browser — no setup required:
+Explore every concept hands-on in the browser (no setup required):
 
 **[jasperan.github.io/data-in-ai-revolution](https://jasperan.github.io/data-in-ai-revolution/)**
 
@@ -160,7 +160,7 @@ Open the HTML deck here: [frontend-slides/tui-tour.html](./frontend-slides/tui-t
 
 ## Introduction
 
-This repository aims to be a guide on all types of data usually found in the realm of Data Science and Artificial Intelligence.
+This repository aims to be a guide on all types of data usually found in the field of Data Science and Artificial Intelligence.
 
 We are living in the Big Data era, where the volume, velocity, and variety of data generated every day are unprecedented.
 
@@ -172,7 +172,7 @@ On one hand, managing and processing such vast amounts of data require advanced 
 
 ### Prerequisites
 
-In order to follow the contents of this workshop, you will need the following:
+To follow the contents of this workshop, you will need the following:
 
 An Oracle Cloud Infrastructure (OCI) Account. Although it's not explicitly required as you don't have to follow any of the steps by yourself, it's still recommended as you will be able to explore the services and use cases we mention in the workshop on OCI, while scanning through the content.
 
@@ -201,7 +201,7 @@ jupyter notebook notebooks/
 
 ## 1. Data for each type of problem
 
-There are lots of problems that fall into the realm of Artificial Intelligence. However, not all data fits the desired format to solve a specific type of problem. Depending on what type of data we have available, we'll be able to use it in one way or the other.
+There are lots of problems that fall into the space of Artificial Intelligence. However, not all data fits the desired format to solve a specific type of problem. Depending on what type of data we have available, we'll be able to use it in one way or the other.
 
 For example, all AI models that are used to generate text require **text data**. On the other hand, models that are used to process **images or video**, to detect objects on these images, or segment them, require 2-dimensional data. We'll talk about more of each type of data in the next sections.
 
@@ -656,7 +656,7 @@ You can see that the bounding box representation of the detected object in the i
 
 ## 5. How LLMs Build Their Vocabulary: BPE Tokenization
 
-Most modern LLMs (GPT, LLaMA, Mistral) don't tokenize text by words or characters — they use **Byte Pair Encoding (BPE)**, a compression-inspired algorithm that builds a vocabulary bottom-up.
+Most modern LLMs (GPT, LLaMA, Mistral) don't tokenize text by words or characters. They use **Byte Pair Encoding (BPE)**, a compression-inspired algorithm that builds a vocabulary bottom-up.
 
 BPE starts with individual characters and iteratively merges the most frequent adjacent pair into a new token. After thousands of merges, common words become single tokens while rare words are composed of smaller subword pieces. This elegantly handles:
 
@@ -694,16 +694,16 @@ LLMs have a knowledge cutoff and can't access your private data. **Retrieval-Aug
 
 The RAG pipeline has four steps:
 
-1. **Chunk** — Split documents into smaller passages (by sentences, paragraphs, or fixed windows with overlap)
-2. **Embed** — Convert each chunk into a dense vector using an embedding model (e.g., all-MiniLM-L6-v2 produces 384-dimensional vectors)
-3. **Store** — Index the vectors in a vector database (FAISS, Oracle AI Vector Search, Chroma)
-4. **Retrieve & Generate** — At query time, embed the user's question, find the nearest chunk vectors via cosine similarity, and inject the top-k chunks as context in the LLM prompt
+1. **Chunk**. Split documents into smaller passages (by sentences, paragraphs, or fixed windows with overlap)
+2. **Embed**. Convert each chunk into a dense vector using an embedding model (e.g., all-MiniLM-L6-v2 produces 384-dimensional vectors)
+3. **Store**. Index the vectors in a vector database (FAISS, Oracle AI Vector Search, Chroma)
+4. **Retrieve & Generate**. At query time, embed the user's question, find the nearest chunk vectors via cosine similarity, and inject the top-k chunks as context in the LLM prompt
 
 ```text
 User Query → Embed → Vector Search → Top-K Chunks → Prompt Assembly → LLM Answer
 ```
 
-RAG dramatically reduces hallucination and enables LLMs to answer questions about any corpus — company wikis, research papers, codebases — without retraining.
+RAG dramatically reduces hallucination and enables LLMs to answer questions about any corpus (company wikis, research papers, codebases) without retraining.
 
 Check out the [interactive RAG notebook](./notebooks/03_rag_vector_search.ipynb) to build a complete RAG pipeline from scratch, including chunking, embedding, similarity search, and prompt assembly.
 
@@ -713,7 +713,7 @@ Pre-trained LLMs are general-purpose text predictors. **Fine-tuning** specialize
 
 ### Supervised Fine-Tuning (SFT)
 
-The simplest approach — provide instruction-response pairs:
+The simplest approach, provide instruction-response pairs:
 
 ```json
 {"instruction": "What is gradient descent?", "input": "", "output": "Gradient descent is an optimization algorithm..."}
@@ -844,4 +844,4 @@ Licensed under the Universal Permissive License (UPL), Version 1.0.
 
 See [LICENSE](LICENSE) for more details.
 
-ORACLE AND ITS AFFILIATES DO NOT PROVIDE ANY WARRANTY WHATSOEVER, EXPRESS OR IMPLIED, FOR ANY SOFTWARE, MATERIAL OR CONTENT OF ANY KIND CONTAINED OR PRODUCED WITHIN THIS REPOSITORY, AND IN PARTICULAR SPECIFICALLY DISCLAIM ANY AND ALL IMPLIED WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE.  FURTHERMORE, ORACLE AND ITS AFFILIATES DO NOT REPRESENT THAT ANY CUSTOMARY SECURITY REVIEW HAS BEEN PERFORMED WITH RESPECT TO ANY SOFTWARE, MATERIAL OR CONTENT CONTAINED OR PRODUCED WITHIN THIS REPOSITORY. IN ADDITION, AND WITHOUT LIMITING THE FOREGOING, THIRD PARTIES MAY HAVE POSTED SOFTWARE, MATERIAL OR CONTENT TO THIS REPOSITORY WITHOUT ANY REVIEW. USE AT YOUR OWN RISK.
+ORACLE AND ITS AFFILIATES DO NOT PROVIDE ANY WARRANTY WHATSOEVER, EXPRESS OR IMPLIED, FOR ANY SOFTWARE, MATERIAL OR CONTENT OF ANY KIND CONTAINED OR PRODUCED WITHIN THIS REPOSITORY, AND IN PARTICULAR SPECIFICALLY DISCLAIM ANY AND ALL IMPLIED WARRANTIES OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE. ORACLE AND ITS AFFILIATES DO NOT REPRESENT THAT ANY CUSTOMARY SECURITY REVIEW HAS BEEN PERFORMED WITH RESPECT TO ANY SOFTWARE, MATERIAL OR CONTENT CONTAINED OR PRODUCED WITHIN THIS REPOSITORY. IN ADDITION, AND WITHOUT LIMITING THE FOREGOING, THIRD PARTIES MAY HAVE POSTED SOFTWARE, MATERIAL OR CONTENT TO THIS REPOSITORY WITHOUT ANY REVIEW. USE AT YOUR OWN RISK.

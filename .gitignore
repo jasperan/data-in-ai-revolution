@@ -13,6 +13,7 @@ task_plan.md
 findings.md
 progress.md
 content/
+dogfood-output/
 
 # Python caches and environments
 __pycache__/
