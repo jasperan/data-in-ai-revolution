@@ -11,6 +11,7 @@ import {
   FineTuningWidget,
   QuantizationWidget,
   PredictiveMLWidget,
+  ComplexityChart,
 } from "@/components/widgets";
 
 const SECTIONS = [
@@ -131,6 +132,22 @@ export default function Home() {
 
       {/* Content */}
       <div id="main-content" className="max-w-2xl mx-auto px-6 pb-28">
+        {/* Attention complexity preview chart */}
+        <section className="reveal scroll-mt-20 mt-10">
+          <p className="text-muted-foreground mb-3 leading-relaxed text-sm">
+            Why does context length matter? <span className="text-attention">Self-attention</span> scales quadratically with sequence length, while <strong className="text-foreground font-semibold">sparse attention</strong> variants approximate it in O(n log n). Toggle scales and curves below.
+          </p>
+          <ComplexityChart
+            label="Attention scaling: dense vs sparse"
+            nRange={[1, 512]}
+            curves={[
+              { label: "Dense attention", complexity: "O(n^2)", color: "#9886c4", space: "O(n^2)" },
+              { label: "Sparse attention", complexity: "O(n log n)", color: "#5b9ac8", space: "O(n)" },
+              { label: "Linear attention", complexity: "O(n)", color: "#6ec47e", space: "O(n)" },
+            ]}
+          />
+        </section>
+
         {/* Table of Contents */}
         <div className="bg-card border border-border rounded-xl p-6 md:p-8 my-10">
           <p className="font-mono text-xs tracking-wider mb-5" style={{ color: "var(--primary)", opacity: 0.6 }}>
