@@ -44,8 +44,8 @@ def visualize_attention(attention_maps, tokens, layer=0, head=0):
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
     
     # Add a colorbar to the heatmap to indicate the attention scores
-    cbar = ax.figure.colorbar(im, ax=ax)
-    
+    ax.figure.colorbar(im, ax=ax)
+
     # Set the title of the heatmap with the layer and head information
     ax.set_title(f"Attention Map (Layer {layer+1}, Head {head+1})")
     
@@ -79,8 +79,8 @@ def visualize_attention_multi_head(attention_maps, tokens, layer=0, num_heads=4)
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         
         # Add colorbar
-        cbar = ax.figure.colorbar(im, ax=ax)
-        
+        ax.figure.colorbar(im, ax=ax)
+
         # Set title
         ax.set_title(f"Attention Map (Layer {layer+1}, Head {i+1})")
     
