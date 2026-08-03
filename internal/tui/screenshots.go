@@ -85,14 +85,14 @@ func toSVG(content string) string {
 
 	var builder strings.Builder
 	builder.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d">`, width, height))
-	builder.WriteString(`<rect width="100%" height="100%" fill="#07111f"/>`)
-	builder.WriteString(`<rect x="12" y="12" width="` + fmt.Sprint(width-24) + `" height="` + fmt.Sprint(height-24) + `" rx="18" fill="#0b1626" stroke="#315985"/>`)
+	builder.WriteString(`<rect width="100%" height="100%" fill="#1e1e2e"/>`)
+	builder.WriteString(`<rect x="12" y="12" width="` + fmt.Sprint(width-24) + `" height="` + fmt.Sprint(height-24) + `" rx="18" fill="#181825" stroke="#45475a"/>`)
 	builder.WriteString(`<style>`)
-	builder.WriteString(`text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:18px;fill:#dbe9ff;}`)
-	builder.WriteString(`.muted{fill:#93c5ff;}`)
-	builder.WriteString(`.accent{fill:#9fe4df;}`)
-	builder.WriteString(`.warm{fill:#ffd27d;}`)
-	builder.WriteString(`.title{fill:#ffffff;font-weight:700;}`)
+	builder.WriteString(`text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:18px;fill:#cdd6f4;}`)
+	builder.WriteString(`.muted{fill:#a6adc8;}`)
+	builder.WriteString(`.accent{fill:#89dceb;}`)
+	builder.WriteString(`.warm{fill:#f9e2af;}`)
+	builder.WriteString(`.title{fill:#cdd6f4;font-weight:700;}`)
 	builder.WriteString(`</style>`)
 	for index, line := range lines {
 		escaped := escapeXML(line)
@@ -105,7 +105,7 @@ func toSVG(content string) string {
 			klass = ` class="accent"`
 		case strings.Contains(line, "> [") || strings.Contains(line, " >"):
 			klass = ` class="accent"`
-		case strings.HasPrefix(strings.TrimSpace(line), "┌"):
+		case strings.HasPrefix(strings.TrimSpace(line), "╭"):
 			klass = ` class="title"`
 		case strings.Contains(line, "› ") || strings.Contains(line, "▶ "):
 			klass = ` class="warm"`

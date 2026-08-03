@@ -771,8 +771,8 @@ func boxedWithHeight(title string, width int, lines []string, height int) []stri
 	}
 	borderWidth := innerWidth + 2
 	titleText := truncate(title, innerWidth-2)
-	top := "┌" + padRightWith(" "+titleText+" ", borderWidth-1, "─") + "┐"
-	bottom := "└" + strings.Repeat("─", borderWidth) + "┘"
+	top := "╭" + padRightWith(" "+titleText+" ", borderWidth-1, "─") + "╮"
+	bottom := "╰" + strings.Repeat("─", borderWidth) + "╯"
 	result := []string{top}
 	for _, line := range wrapped {
 		result = append(result, "│ "+padRight(truncate(line, innerWidth), innerWidth)+" │")
