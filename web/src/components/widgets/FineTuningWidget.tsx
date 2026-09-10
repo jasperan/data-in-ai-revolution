@@ -235,7 +235,14 @@ function QualityBadge({
 function JsonPreview({ data, accent }: { data: unknown; accent: string }) {
   const jsonStr = JSON.stringify(data, null, 2);
 
-  const highlighted = jsonStr.replace(
+  // Escape markup before highlighting so user-entered text stays literal when
+  // it is written through dangerouslySetInnerHTML below.
+  const escaped = jsonStr
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  const highlighted = escaped.replace(
     /("(?:[^"\\]|\\.)*")\s*:/g,
     '<span class="json-key">$1</span>:'
   ).replace(
