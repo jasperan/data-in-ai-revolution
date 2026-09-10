@@ -3,11 +3,6 @@ import numpy as np
 import random
 from names import names
 
-'''
-names = [ 
-    'John', 'Ash', 'Mary', 'Jane', 'Wayne', 'Grace', 'Jasper', 'Ashley', 'Kris', 'Ava', 'Taylor'
-]
-'''
 
 class MLDataAggregationVisualization(Scene):
     def construct(self):

@@ -32,14 +32,13 @@ const (
 )
 
 type browserState struct {
-	title             string
-	description       string
-	searchPlaceholder string
-	all               []catalog.Resource
-	visible           []catalog.Resource
-	selected          int
-	focus             focusMode
-	search            textinput.Model
+	title       string
+	description string
+	all         []catalog.Resource
+	visible     []catalog.Resource
+	selected    int
+	focus       focusMode
+	search      textinput.Model
 }
 
 func newBrowserState(title, description, placeholder string, resources []catalog.Resource) browserState {
@@ -49,12 +48,11 @@ func newBrowserState(title, description, placeholder string, resources []catalog
 	input.CharLimit = 120
 	input.Blur()
 	b := browserState{
-		title:             title,
-		description:       description,
-		searchPlaceholder: placeholder,
-		all:               append([]catalog.Resource(nil), resources...),
-		focus:             focusList,
-		search:            input,
+		title:       title,
+		description: description,
+		all:         append([]catalog.Resource(nil), resources...),
+		focus:       focusList,
+		search:      input,
 	}
 	b.applyFilter("")
 	return b

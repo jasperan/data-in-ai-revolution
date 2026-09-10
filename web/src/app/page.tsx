@@ -154,7 +154,7 @@ export default function Home() {
             Contents
           </p>
           <div className="space-y-0">
-            {SECTIONS.map(({ id, label, num }, i) => (
+            {SECTIONS.map(({ id, num }) => (
               <button
                 key={id}
                 onClick={() => scrollToSection(id)}
