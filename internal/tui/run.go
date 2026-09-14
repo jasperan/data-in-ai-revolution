@@ -1,9 +1,11 @@
 package tui
 
-import tea "github.com/charmbracelet/bubbletea"
+import tea "charm.land/bubbletea/v2"
 
 func Run(model Model) error {
-	program := tea.NewProgram(model, tea.WithAltScreen())
+	// v2: alt-screen is a declarative tea.View field (set in Model.View()), not a
+	// ProgramOption. tea.WithAltScreen() no longer exists.
+	program := tea.NewProgram(model)
 	_, err := program.Run()
 	return err
 }

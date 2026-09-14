@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/jasperan/data-in-ai-revolution/internal/workspace"
 )
@@ -56,7 +56,7 @@ func CaptureSVGs(outputDir string, root workspace.Root) ([]string, error) {
 			return nil, err
 		}
 		shot.mutate(&model)
-		content := stripANSI(model.View())
+		content := stripANSI(model.View().Content)
 		target := filepath.Join(outputDir, shot.name)
 		if err := os.WriteFile(target, []byte(toSVG(content)), 0o644); err != nil {
 			return nil, err
@@ -127,6 +127,13 @@ func escapeXML(value string) string {
 	return replacer.Replace(value)
 }
 
-func keyMsg(value string) tea.KeyMsg {
-	return tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune(value)}
+// keyMsg builds a synthetic key press for tests and screenshot capture.
+//
+// Bubble Tea v2 removed tea.KeyRunes; KeyPressMsg now carries a Text string
+// (and an optional Code rune). KeyPressMsg.String() returns Text verbatim when
+// it is non-empty and not a lone space, so setting Text alone reproduces the v1
+// behaviour for printable input. Space intentionally falls through to
+// Keystroke(), which renders it as "space" in v2.
+func keyMsg(value string) tea.KeyPressMsg {
+	return tea.KeyPressMsg{Text: value}
 }

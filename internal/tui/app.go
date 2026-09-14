@@ -6,8 +6,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/jasperan/data-in-ai-revolution/internal/catalog"
 	"github.com/jasperan/data-in-ai-revolution/internal/doctor"
@@ -246,10 +246,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		return m, nil
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		key := msg.String()
-		if key == "" && len(msg.Runes) > 0 {
-			key = string(msg.Runes)
+		if key == "" && msg.Text != "" {
+			key = msg.Text
 		}
 		if m.showHelp {
 			switch key {
@@ -281,8 +281,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			default:
 				insert := ""
-				if len(msg.Runes) > 0 {
-					insert = string(msg.Runes)
+				if msg.Text != "" {
+					insert = msg.Text
 				} else if utf8.RuneCountInString(key) == 1 {
 					insert = key
 				}
@@ -445,7 +445,7 @@ func (m *Model) activeBrowser() *browserState {
 	}
 }
 
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	width := m.width
 	if width <= 0 {
 		width = 120
@@ -482,7 +482,12 @@ func (m Model) View() string {
 	lines = append(lines, content...)
 	lines = append(lines, strings.Repeat("─", width))
 	lines = append(lines, padRight(truncate(fmt.Sprintf("Status: %s", m.status), width), width))
-	return strings.Join(lines, "\n")
+
+	// v2: terminal features are declarative View fields. tea.WithAltScreen() no
+	// longer exists as a ProgramOption (it was passed in run.go before this change).
+	view := tea.NewView(strings.Join(lines, "\n"))
+	view.AltScreen = true
+	return view
 }
 
 func (m Model) renderOverview(width, height int) []string {

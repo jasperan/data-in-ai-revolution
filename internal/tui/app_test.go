@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/jasperan/data-in-ai-revolution/internal/workspace"
 )
@@ -46,7 +46,7 @@ func TestModelNavigationAndFiltering(t *testing.T) {
 		t.Fatal("expected visible map matches")
 	}
 
-	updated, _ = model.Update(tea.KeyMsg{Type: tea.KeyTab})
+	updated, _ = model.Update(tea.KeyPressMsg{Code: tea.KeyTab})
 	model = updated.(Model)
 	if model.mapView.focus != focusList {
 		t.Fatalf("expected list focus after tab, got %s", model.mapView.focus)
@@ -64,7 +64,7 @@ func TestModelNavigationAndFiltering(t *testing.T) {
 		t.Fatalf("expected map tab after [, got %s", model.tab)
 	}
 
-	view := model.View()
+	view := model.View().Content
 	if !strings.Contains(view, "Workshop curriculum") {
 		t.Fatalf("expected workshop curriculum in view")
 	}
@@ -93,7 +93,7 @@ func TestHelpOverlay(t *testing.T) {
 	if !model.showHelp {
 		t.Fatal("expected help overlay to open")
 	}
-	view := model.View()
+	view := model.View().Content
 	if !strings.Contains(view, "Keyboard Help") {
 		t.Fatalf("expected keyboard help in view")
 	}
