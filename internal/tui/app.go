@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 	"image/color"
-	"regexp"
 	"strings"
 	"unicode/utf8"
 
@@ -1207,8 +1206,12 @@ func minInt(a, b int) int {
 	return b
 }
 
-var ansiPattern = regexp.MustCompile(`\x1b\[[0-9;]*m`)
-
+// stripANSI removes ANSI escape sequences so tests and the SVG capture can assert
+// on visible text.
+//
+// Delegates to x/ansi rather than a hand-rolled SGR regex: lipgloss v2 emits
+// per-character escapes, and x/ansi also handles the OSC and hyperlink sequences a
+// colour-only regex would leave behind.
 func stripANSI(value string) string {
-	return ansiPattern.ReplaceAllString(value, "")
+	return ansi.Strip(value)
 }
