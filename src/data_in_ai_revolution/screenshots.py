@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 from pathlib import Path
 
 from textual.widgets import Input, TabbedContent
@@ -43,7 +44,46 @@ async def capture_screenshots(output_dir: Path, repo_root: Path | None = None) -
         await pilot.pause()
         app.save_screenshot("tui-doctor.svg", path=str(output_dir))
 
+    _sanitise_published_paths(output_dir, root)
     return tuple(sorted(output_dir.glob("tui-*.svg")))
+
+
+def _sanitise_published_paths(directory: Path, root: Path) -> None:
+    """Rewrite absolute local paths out of the captured screenshots.
+
+    The captures are committed to a public repository and the package-data copy
+    ships inside the distribution, so an absolute path in them publishes the
+    developer's home directory. The doctor check renders the repository root, which
+    is where the path comes from.
+
+    Only the captured FILES are rewritten. The live TUI still shows the real path,
+    and the doctor still runs its checks against the real directory; sanitising the
+    input instead would change those checks' results and so what the capture shows.
+    """
+    try:
+        home = str(Path.home())
+    except (RuntimeError, OSError):  # pragma: no cover - no home directory configured
+        home = ""
+
+    for path in sorted(directory.glob("tui-*.svg")):
+        text = path.read_text(encoding="utf-8")
+        sanitised = text
+
+        # Match on a separator boundary, so a home directory that is a prefix of
+        # another path cannot be rewritten part-way through a component.
+        if home:
+            sanitised = sanitised.replace(home + os.sep, "~" + os.sep)
+
+        # A checkout outside the home directory - a temp directory, or a CI
+        # workspace - has no home prefix to strip, so replace the workspace root
+        # itself. This is a no-op when the root is under the home directory,
+        # because the pass above has already rewritten it.
+        root_text = str(root)
+        if root_text:
+            sanitised = sanitised.replace(root_text, "<workspace>")
+
+        if sanitised != text:
+            path.write_text(sanitised, encoding="utf-8")
 
 
 def capture(output_dir: Path, repo_root: Path | None = None) -> tuple[Path, ...]:
