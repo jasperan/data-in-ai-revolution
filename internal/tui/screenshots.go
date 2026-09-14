@@ -56,7 +56,7 @@ func CaptureSVGs(outputDir string, root workspace.Root) ([]string, error) {
 			return nil, err
 		}
 		shot.mutate(&model)
-		content := stripANSI(model.View().Content)
+		content := sanitisePublishedPaths(stripANSI(model.View().Content), root.Dir)
 		target := filepath.Join(outputDir, shot.name)
 		if err := os.WriteFile(target, []byte(toSVG(content)), 0o644); err != nil {
 			return nil, err
@@ -64,6 +64,38 @@ func CaptureSVGs(outputDir string, root workspace.Root) ([]string, error) {
 		written = append(written, filepath.ToSlash(target))
 	}
 	return written, nil
+}
+
+// sanitisePublishedPaths rewrites absolute local paths out of a rendered capture
+// before it is written as a published artifact.
+//
+// Two fields render the workspace root: the overview's "Workspace root" and the
+// doctor's "Repository layout / Root" detail. The captures are committed to a public
+// repository and shipped inside the Python distribution, so leaving the real path in
+// them publishes the developer's home directory.
+//
+// This rewrites the RENDERED TEXT only. The live TUI is deliberately untouched -
+// a user running the program should still see the real working directory - and so
+// are the doctor's checks, which run against the real directory before this point.
+// Sanitising the input instead would change those checks' results and therefore what
+// the screenshot shows.
+func sanitisePublishedPaths(content, root string) string {
+	// Replace at a separator boundary, so a home directory that is a prefix of
+	// another path (for example /home/bob against /home/bobby) cannot be matched
+	// part-way through a component.
+	sep := string(filepath.Separator)
+	if home, err := os.UserHomeDir(); err == nil && home != "" && home != sep {
+		content = strings.ReplaceAll(content, home+sep, "~"+sep)
+	}
+
+	// A checkout outside the home directory - a temp directory, or a CI workspace -
+	// has no home prefix to strip, so replace the workspace root itself. This is a
+	// no-op when the root is under the home directory, because the pass above has
+	// already rewritten it.
+	if root != "" {
+		content = strings.ReplaceAll(content, root, "<workspace>")
+	}
+	return content
 }
 
 func toSVG(content string) string {
