@@ -2,10 +2,12 @@ package tui
 
 import (
 	"fmt"
+	"image/color"
 	"regexp"
 	"strings"
 	"unicode/utf8"
 
+	"charm.land/bubbles/v2/progress"
 	"charm.land/bubbles/v2/table"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
@@ -34,6 +36,11 @@ type focusMode string
 const (
 	accentColor = "#89dceb"
 	panelColor  = "#1e1e2e"
+	// Threshold colours for status bars: green when everything is healthy, amber
+	// while only warnings remain, red once anything fails.
+	okColor     = "#a6e3a1"
+	warnColor   = "#f9e2af"
+	dangerColor = "#f38ba8"
 )
 
 const (
@@ -568,9 +575,10 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 	headerBox := boxed(browser.title, width, []string{browser.description})
 	searchLine := truncate(fmt.Sprintf("Focus: %s · %s", browser.focus, browser.search.View()), width)
 	toolbarLine := truncate(browser.resultsSummary()+" · "+browser.kindBreakdown()+"   "+browser.hintText(), width)
+	launchLine := truncate(launchableProgressBar(browser.launchableCount(), browser.visibleCount(), maxInt(10, width/2)), width)
 
 	if !sideBySide {
-		return append([]string{headerBox, "", searchLine, toolbarLine, ""}, tableLines...)
+		return append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, tableLines...)
 	}
 
 	resource, ok := browser.selectedResource()
@@ -598,7 +606,7 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 
 	rightBox := boxedWithHeight("Inspector", rightWidth, detailLines, height-10)
 	joined := joinColumns(tableLines, rightBox, paneGap)
-	return append([]string{headerBox, "", searchLine, toolbarLine, ""}, joined...)
+	return append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, joined...)
 }
 
 // newResourceTable renders the visible catalog resources as a bubbles/table.
@@ -706,18 +714,76 @@ func (m Model) renderDoctor(width, height int) []string {
 	}))
 	lines = append(lines, "")
 	passCount, warnCount, failCount := doctorCounts(m.doctor)
-	summary := boxed("Summary", width, []string{
+	progressLine := doctorProgressBar(len(m.doctor), passCount, warnCount, failCount, maxInt(10, width-4))
+	summaryLines := []string{
 		fmt.Sprintf("Pass: %d · Warn: %d · Fail: %d", passCount, warnCount, failCount),
+		progressLine,
 		"Warnings are usually about optional lab dependencies or a dirty branch, not the core TUI.",
-	})
+	}
+	summary := boxed("Summary", width, summaryLines)
 	lines = append(lines, summary)
 	lines = append(lines, "")
 	rows := []string{}
 	for _, check := range m.doctor {
 		rows = append(rows, fmt.Sprintf("%s %-18s %s", check.Icon(), truncate(check.Name, 18), check.Detail))
 	}
-	lines = append(lines, strings.Join(boxedWithHeight("Checks", width, rows, height-11), "\n"))
+	lines = append(lines, strings.Join(boxedWithHeight("Checks", width, rows, height-12), "\n"))
 	return flattenBoxes(lines)
+}
+
+// doctorStatusColor picks the meter colour from the doctor outcome. Kept separate
+// from the view so the threshold mapping is directly testable: a blend
+// (progress.WithColors) would render a half-passing environment as a gradient,
+// which misrepresents the result.
+func doctorStatusColor(warnCount, failCount int) color.Color {
+	switch {
+	case failCount > 0:
+		return lipgloss.Color(dangerColor)
+	case warnCount > 0:
+		return lipgloss.Color(warnColor)
+	default:
+		return lipgloss.Color(okColor)
+	}
+}
+
+func doctorProgressBar(total, passCount, warnCount, failCount, width int) string {
+	if total <= 0 {
+		return ""
+	}
+	meter := progress.New(
+		progress.WithColorFunc(func(_, _ float64) color.Color {
+			return doctorStatusColor(warnCount, failCount)
+		}),
+		progress.WithWidth(width),
+	)
+	return meter.ViewAs(float64(passCount) / float64(total))
+}
+
+// launchableStatusColor picks the meter colour from how much of the result set
+// can actually be run.
+func launchableStatusColor(launchable, total int) color.Color {
+	switch {
+	case launchable <= 0:
+		return lipgloss.Color(warnColor)
+	case launchable >= total:
+		return lipgloss.Color(okColor)
+	default:
+		return lipgloss.Color(accentColor)
+	}
+}
+
+// launchableProgressBar shows what fraction of the current result set can be run.
+func launchableProgressBar(launchable, total, width int) string {
+	if total <= 0 {
+		return ""
+	}
+	meter := progress.New(
+		progress.WithColorFunc(func(_, _ float64) color.Color {
+			return launchableStatusColor(launchable, total)
+		}),
+		progress.WithWidth(width),
+	)
+	return meter.ViewAs(float64(launchable) / float64(total))
 }
 
 func (m Model) renderHelp(width, height int) []string {

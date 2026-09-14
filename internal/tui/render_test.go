@@ -1,10 +1,13 @@
 package tui
 
 import (
+	"image/color"
 	"strings"
 	"testing"
 
+	"charm.land/bubbles/v2/progress"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/jasperan/data-in-ai-revolution/internal/workspace"
 )
@@ -267,6 +270,87 @@ func TestPrintableKeysStillReachSearch(t *testing.T) {
 	}
 	if got := model.labsView.search.Value(); got != "rag" {
 		t.Fatalf("typed value = %q, want %q", got, "rag")
+	}
+}
+
+// TestDoctorProgressColorIsThresholdNotBlend is C7. The colour must be chosen by
+// outcome. progress.WithColors blends between colours by position, which would
+// render an environment with failures as a partial gradient.
+func TestDoctorProgressColorIsThresholdNotBlend(t *testing.T) {
+	cases := []struct {
+		name       string
+		warn, fail int
+		want       color.Color
+	}{
+		{"any failure is red", 0, 1, lipgloss.Color(dangerColor)},
+		{"failure beats warning", 3, 2, lipgloss.Color(dangerColor)},
+		{"warnings only is amber", 2, 0, lipgloss.Color(warnColor)},
+		{"all passing is green", 0, 0, lipgloss.Color(okColor)},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := doctorStatusColor(tc.warn, tc.fail); got != tc.want {
+				t.Fatalf("doctorStatusColor(warn=%d, fail=%d) = %v, want %v", tc.warn, tc.fail, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestLaunchableProgressColorIsThreshold(t *testing.T) {
+	cases := []struct {
+		name              string
+		launchable, total int
+		want              color.Color
+	}{
+		{"nothing runnable is amber", 0, 10, lipgloss.Color(warnColor)},
+		{"everything runnable is green", 10, 10, lipgloss.Color(okColor)},
+		{"partially runnable is accent", 5, 10, lipgloss.Color(accentColor)},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := launchableStatusColor(tc.launchable, tc.total); got != tc.want {
+				t.Fatalf("launchableStatusColor(%d,%d) = %v, want %v", tc.launchable, tc.total, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestProgressBarsHandleZeroTotal is C4 for the meters: a zero denominator must
+// not divide by zero or panic.
+func TestProgressBarsHandleZeroTotal(t *testing.T) {
+	if got := doctorProgressBar(0, 0, 0, 0, 40); got != "" {
+		t.Errorf("doctorProgressBar with 0 checks = %q, want empty", got)
+	}
+	if got := launchableProgressBar(0, 0, 40); got != "" {
+		t.Errorf("launchableProgressBar with 0 resources = %q, want empty", got)
+	}
+	// Degenerate widths must not panic.
+	for _, w := range []int{0, 1, 2, -5} {
+		_ = doctorProgressBar(4, 1, 2, 1, w)
+		_ = launchableProgressBar(1, 4, w)
+	}
+}
+
+// TestProgressMetersRenderInView is C1 for the meters: assert the component
+// actually produced a bar in the rendered view, not merely that a model was
+// constructed. The fill/empty runes come from the progress package rather than
+// being hardcoded, because v2 defaults to the half-block fill ("▌"), not "█".
+func TestProgressMetersRenderInView(t *testing.T) {
+	model := newTestModel(t)
+	fill := string(progress.DefaultFullCharHalfBlock)
+	empty := string(progress.DefaultEmptyCharBlock)
+
+	doctor := strings.Join(renderTab(t, model, tabDoctor, 120, 40), "\n")
+	if !strings.Contains(doctor, fill) || !strings.Contains(doctor, empty) {
+		t.Errorf("doctor view missing progress meter (%q/%q):\n%s", fill, empty, doctor)
+	}
+	if !strings.Contains(doctor, "%") {
+		t.Errorf("doctor progress meter has no percentage readout:\n%s", doctor)
+	}
+
+	labs := strings.Join(renderTab(t, model, tabLabs, 120, 40), "\n")
+	if !strings.Contains(labs, fill) {
+		t.Errorf("labs view missing launchable meter (%q):\n%s", fill, labs)
 	}
 }
 
