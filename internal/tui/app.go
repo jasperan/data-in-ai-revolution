@@ -802,6 +802,9 @@ func wrapText(text string, width int) []string {
 	if text == "" {
 		return []string{""}
 	}
+	if width < 1 {
+		width = 1
+	}
 	words := strings.Fields(text)
 	lines := []string{}
 	current := ""
@@ -818,10 +821,22 @@ func wrapText(text string, width int) []string {
 			lines = append(lines, current)
 		}
 		current = word
+		// Hard-break a token too long to ever fit on its own line.
+		//
+		// The consumed prefix is derived from rune offsets directly. The previous
+		// form appended "…" to the cut prefix and then called
+		// strings.TrimPrefix(current, cut): that never matches, because cut ends
+		// in the ellipsis that current does not start with. current therefore
+		// never shrank and the loop spun forever whenever a single
+		// whitespace-free token exceeded the wrap width.
 		for runeWidth(current) > width && width > 1 {
-			cut := truncate(current, width-1)
-			lines = append(lines, cut+"…")
-			current = strings.TrimSpace(strings.TrimPrefix(current, cut))
+			runes := []rune(current)
+			consume := minInt(width-1, len(runes))
+			if consume <= 0 {
+				break
+			}
+			lines = append(lines, string(runes[:consume])+"…")
+			current = string(runes[consume:])
 		}
 	}
 	if current != "" {
@@ -885,6 +900,13 @@ func truncateSlice(values []string, limit int) []string {
 
 func maxInt(a, b int) int {
 	if a > b {
+		return a
+	}
+	return b
+}
+
+func minInt(a, b int) int {
+	if a < b {
 		return a
 	}
 	return b
