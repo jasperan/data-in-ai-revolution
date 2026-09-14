@@ -556,11 +556,21 @@ func TestClampLinesKeepsEveryLineOfAMultiLineElement(t *testing.T) {
 // no-panic assertion is not enough -- the header alone would satisfy it. The caret
 // is asserted because it is carried as row CONTENT (see the selection-caret test),
 // so it can only be present if a data row actually rendered.
+//
+// The header LINE is asserted separately and deliberately: bubbles/table renders
+// View() as headersView() + "\n" + viewport.View(), and only the viewport is clipped,
+// so the header is the one line Table never fits to its own width. A body-only sweep
+// cannot see that class at all. At the widths below the column floor (minName=12 plus
+// 2*ncols padding = 19 cells) the raw table header is genuinely wider than the table;
+// the rendered view still fits because clampLines clamps the composed frame, and that
+// is what this asserts.
 func TestResourceTableRendersRowsAcrossTheWidthSweep(t *testing.T) {
-	for _, width := range []int{150, 120, 100, 96, 80, 60, 40, 20} {
+	for _, width := range []int{150, 120, 100, 96, 80, 60, 40, 20, 12, 0} {
+		limit := effectiveWidth(width)
 		for _, tab := range []tabID{tabMap, tabLabs} {
 			model := newTestModel(t)
-			plain := strings.Join(renderTab(t, model, tab, width, 24), "\n")
+			lines := renderTab(t, model, tab, width, 24)
+			plain := strings.Join(lines, "\n")
 
 			if !strings.Contains(plain, "Resource") {
 				t.Errorf("tab=%s width=%d: table header missing, the table did not render at all", tab, width)
@@ -568,6 +578,17 @@ func TestResourceTableRendersRowsAcrossTheWidthSweep(t *testing.T) {
 			if !strings.Contains(plain, "›") {
 				t.Errorf("tab=%s width=%d: no selected-row caret, the table rendered no rows (HZ-1):\n%s",
 					tab, width, plain)
+			}
+
+			for _, line := range lines {
+				if !strings.Contains(line, "Resource") {
+					continue
+				}
+				if got := runeWidth(line); got > limit {
+					t.Errorf("tab=%s width=%d: table HEADER line is %d cells, exceeding %d "+
+						"(bubbles/table does not clip the header to SetWidth):\n%q",
+						tab, width, got, limit, line)
+				}
 			}
 		}
 	}
