@@ -7,6 +7,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/progress"
 	"charm.land/bubbles/v2/table"
 	"charm.land/bubbles/v2/textinput"
@@ -41,7 +43,78 @@ const (
 	okColor     = "#a6e3a1"
 	warnColor   = "#f9e2af"
 	dangerColor = "#f38ba8"
+	mutedColor  = "#a6adc8"
 )
+
+// isDark matches the dark background the SVG capture stylesheet assumes
+// (#1e1e2e), so the terminal help bar and the committed screenshots agree.
+const isDark = true
+
+// keyMap is the single definition of the app's keybindings. It implements
+// help.KeyMap, so bubbles/help renders the footer from these bindings instead of
+// a hand-maintained hint string that can drift from the actual Update switch.
+//
+// The full-screen help overlay (renderHelp) stays custom: bubbles/help renders a
+// compact short/full footer, not a tabbed modal panel.
+type keyMap struct {
+	TabNext key.Binding
+	TabPrev key.Binding
+	TabJump key.Binding
+	Search  key.Binding
+	Focus   key.Binding
+	Move    key.Binding
+	Page    key.Binding
+	Jump    key.Binding
+	Launch  key.Binding
+	Doctor  key.Binding
+	Refresh key.Binding
+	Help    key.Binding
+	Back    key.Binding
+	Quit    key.Binding
+}
+
+func defaultKeyMap() keyMap {
+	return keyMap{
+		TabNext: key.NewBinding(key.WithKeys("right", "]"), key.WithHelp("→/]", "next tab")),
+		TabPrev: key.NewBinding(key.WithKeys("left", "["), key.WithHelp("←/[", "prev tab")),
+		TabJump: key.NewBinding(key.WithKeys("1", "2", "3", "4"), key.WithHelp("1-4", "jump to tab")),
+		Search:  key.NewBinding(key.WithKeys("/"), key.WithHelp("/", "search")),
+		Focus:   key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "search/list")),
+		Move:    key.NewBinding(key.WithKeys("up", "down", "j", "k"), key.WithHelp("↑/↓", "move")),
+		Page:    key.NewBinding(key.WithKeys("pgup", "pgdown"), key.WithHelp("pgup/pgdn", "page")),
+		Jump:    key.NewBinding(key.WithKeys("home", "end", "g", "G"), key.WithHelp("g/G", "first/last")),
+		Launch:  key.NewBinding(key.WithKeys("enter", "l"), key.WithHelp("enter", "launch")),
+		Doctor:  key.NewBinding(key.WithKeys("d"), key.WithHelp("d", "rerun doctor")),
+		Refresh: key.NewBinding(key.WithKeys("r"), key.WithHelp("r", "refresh catalog")),
+		Help:    key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "help")),
+		Back:    key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "back to list")),
+		Quit:    key.NewBinding(key.WithKeys("q", "ctrl+c"), key.WithHelp("q", "quit")),
+	}
+}
+
+func (k keyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Search, k.Move, k.Launch, k.Help, k.Quit}
+}
+
+func (k keyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.TabPrev, k.TabNext, k.TabJump, k.Search},
+		{k.Focus, k.Move, k.Page, k.Jump},
+		{k.Launch, k.Doctor, k.Refresh, k.Back},
+		{k.Help, k.Quit},
+	}
+}
+
+func helpStyles() help.Styles {
+	styles := help.DefaultStyles(isDark)
+	styles.ShortKey = styles.ShortKey.Foreground(lipgloss.Color(accentColor))
+	styles.ShortDesc = styles.ShortDesc.Foreground(lipgloss.Color(mutedColor))
+	styles.ShortSeparator = styles.ShortSeparator.Foreground(lipgloss.Color(mutedColor))
+	styles.FullKey = styles.FullKey.Foreground(lipgloss.Color(accentColor))
+	styles.FullDesc = styles.FullDesc.Foreground(lipgloss.Color(mutedColor))
+	styles.FullSeparator = styles.FullSeparator.Foreground(lipgloss.Color(mutedColor))
+	return styles
+}
 
 const (
 	focusSearch focusMode = "search"
@@ -221,6 +294,8 @@ type Model struct {
 	status    string
 	snapshot  bool
 	showHelp  bool
+	keys      keyMap
+	helpBar   help.Model
 }
 
 func NewModel(root workspace.Root, snapshot bool) (Model, error) {
@@ -236,7 +311,10 @@ func NewModel(root workspace.Root, snapshot bool) (Model, error) {
 		tab:       tabOverview,
 		status:    fmt.Sprintf("Loaded workshop from %s", root.Source),
 		snapshot:  snapshot,
+		keys:      defaultKeyMap(),
+		helpBar:   help.New(),
 	}
+	model.helpBar.Styles = helpStyles()
 	model.mapView = newBrowserState(
 		"Workshop curriculum",
 		"Trace the workshop narrative, inspect section highlights, and use search plus focus cycling to move through the curriculum fast.",
@@ -262,6 +340,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		if msg.Width > 0 {
+			m.helpBar.SetWidth(msg.Width)
+		}
 		return m, nil
 	case tea.KeyPressMsg:
 		key := msg.String()
@@ -477,7 +558,10 @@ func (m Model) View() tea.View {
 	lines = append(lines, padRight(truncate(renderTabs(m.tab), width), width))
 	lines = append(lines, strings.Repeat("─", width))
 
-	contentHeight := maxInt(8, height-5)
+	// The help bar tracks the resolved width so it also renders correctly when a
+	// test sets m.width directly without sending a WindowSizeMsg.
+	m.helpBar.SetWidth(width)
+	contentHeight := maxInt(8, height-6)
 	var content []string
 	if m.showHelp {
 		content = m.renderHelp(width, contentHeight)
@@ -498,6 +582,7 @@ func (m Model) View() tea.View {
 	content = fitHeight(content, contentHeight)
 	lines = append(lines, content...)
 	lines = append(lines, strings.Repeat("─", width))
+	lines = append(lines, padRight(truncate(m.helpBar.View(m.keys), width), width))
 	lines = append(lines, padRight(truncate(fmt.Sprintf("Status: %s", m.status), width), width))
 
 	// Safety net: no rendered line may exceed the terminal width. Panes and the

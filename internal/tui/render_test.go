@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/progress"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -351,6 +352,66 @@ func TestProgressMetersRenderInView(t *testing.T) {
 	labs := strings.Join(renderTab(t, model, tabLabs, 120, 40), "\n")
 	if !strings.Contains(labs, fill) {
 		t.Errorf("labs view missing launchable meter (%q):\n%s", fill, labs)
+	}
+}
+
+// TestHelpBarRendersBindingFooter asserts the bubbles/help footer reaches the
+// rendered view. The footer is generated from the keyMap, so it cannot drift from
+// the bindings the way the old static hint string could.
+func TestHelpBarRendersBindingFooter(t *testing.T) {
+	model := newTestModel(t)
+	plain := strings.Join(renderTab(t, model, tabOverview, 120, 40), "\n")
+	for _, want := range []string{"search", "move", "launch", "help", "quit"} {
+		if !strings.Contains(plain, want) {
+			t.Errorf("help footer missing %q:\n%s", want, plain)
+		}
+	}
+}
+
+// TestKeyMapBindingsAreWellFormed keeps the keymap usable as both a help source
+// and a real keybinding source: every binding needs keys, a description, and must
+// be enabled.
+func TestKeyMapBindingsAreWellFormed(t *testing.T) {
+	km := defaultKeyMap()
+	groups := append([][]key.Binding{km.ShortHelp()}, km.FullHelp()...)
+	for _, group := range groups {
+		for _, binding := range group {
+			if len(binding.Keys()) == 0 {
+				t.Errorf("binding %q has no keys", binding.Help().Desc)
+			}
+			if binding.Help().Desc == "" {
+				t.Errorf("binding %v has no description", binding.Keys())
+			}
+			if !binding.Enabled() {
+				t.Errorf("binding %v is disabled", binding.Keys())
+			}
+		}
+	}
+}
+
+// TestKeyMapCoversDocumentedBindings pins the migration's key-parity checklist:
+// every key the app documents (static overlay or hint text) must be declared in
+// the keyMap, so nothing silently loses its affordance.
+func TestKeyMapCoversDocumentedBindings(t *testing.T) {
+	km := defaultKeyMap()
+	declared := map[string]bool{}
+	groups := append([][]key.Binding{km.ShortHelp()}, km.FullHelp()...)
+	for _, group := range groups {
+		for _, binding := range group {
+			for _, k := range binding.Keys() {
+				declared[k] = true
+			}
+		}
+	}
+	// The Update switch handles these literal key strings.
+	for _, k := range []string{
+		"1", "2", "3", "4", "left", "right", "[", "]", "?", "q", "ctrl+c",
+		"/", "tab", "esc", "up", "down", "j", "k", "pgup", "pgdown",
+		"home", "end", "g", "G", "enter", "l", "d", "r",
+	} {
+		if !declared[k] {
+			t.Errorf("key %q is handled by Update but not declared in the keyMap", k)
+		}
 	}
 }
 
