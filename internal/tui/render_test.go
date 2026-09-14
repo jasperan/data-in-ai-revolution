@@ -334,24 +334,46 @@ func TestProgressBarsHandleZeroTotal(t *testing.T) {
 
 // TestProgressMetersRenderInView is C1 for the meters: assert the component
 // actually produced a bar in the rendered view, not merely that a model was
-// constructed. The fill/empty runes come from the progress package rather than
-// being hardcoded, because v2 defaults to the half-block fill ("▌"), not "█".
+// constructed.
+//
+// Assertions deliberately avoid the empty rune. The doctor meter is 100% full
+// whenever the environment has no warnings, and the launchable meter is 100% full
+// when every resource is runnable, so requiring "░" would make the test depend on
+// the state of the machine and the checkout. Only the fill rune and the
+// percentage readout are always present for a non-empty data set.
 func TestProgressMetersRenderInView(t *testing.T) {
 	model := newTestModel(t)
 	fill := string(progress.DefaultFullCharHalfBlock)
-	empty := string(progress.DefaultEmptyCharBlock)
 
+	if len(model.doctor) == 0 {
+		t.Fatal("precondition: doctor produced no checks")
+	}
 	doctor := strings.Join(renderTab(t, model, tabDoctor, 120, 40), "\n")
-	if !strings.Contains(doctor, fill) || !strings.Contains(doctor, empty) {
-		t.Errorf("doctor view missing progress meter (%q/%q):\n%s", fill, empty, doctor)
+	if !strings.Contains(doctor, fill) {
+		t.Errorf("doctor view missing progress fill %q:\n%s", fill, doctor)
 	}
 	if !strings.Contains(doctor, "%") {
 		t.Errorf("doctor progress meter has no percentage readout:\n%s", doctor)
 	}
 
+	if model.labsView.visibleCount() == 0 {
+		t.Fatal("precondition: no visible labs")
+	}
 	labs := strings.Join(renderTab(t, model, tabLabs, 120, 40), "\n")
 	if !strings.Contains(labs, fill) {
-		t.Errorf("labs view missing launchable meter (%q):\n%s", fill, labs)
+		t.Errorf("labs view missing launchable meter fill %q:\n%s", fill, labs)
+	}
+}
+
+// TestProgressMeterFullBarHasNoEmptyRunes documents the boundary the test above
+// must not trip over: a fully satisfied meter renders only fill runes.
+func TestProgressMeterFullBarHasNoEmptyRunes(t *testing.T) {
+	full := doctorProgressBar(4, 4, 0, 0, 40)
+	if !strings.Contains(full, string(progress.DefaultFullCharHalfBlock)) {
+		t.Fatalf("full meter missing fill rune: %q", full)
+	}
+	if strings.Contains(full, string(progress.DefaultEmptyCharBlock)) {
+		t.Fatalf("full meter should have no empty runes: %q", full)
 	}
 }
 
