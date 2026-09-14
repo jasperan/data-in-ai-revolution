@@ -6,8 +6,11 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"charm.land/bubbles/v2/table"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/x/ansi"
 
 	"github.com/jasperan/data-in-ai-revolution/internal/catalog"
 	"github.com/jasperan/data-in-ai-revolution/internal/doctor"
@@ -25,6 +28,13 @@ const (
 )
 
 type focusMode string
+
+// Palette shared with the SVG capture stylesheet in screenshots.go so the
+// terminal view and the committed screenshots stay visually consistent.
+const (
+	accentColor = "#89dceb"
+	panelColor  = "#1e1e2e"
+)
 
 const (
 	focusSearch focusMode = "search"
@@ -456,8 +466,8 @@ func (m Model) View() tea.View {
 	}
 
 	lines := []string{}
-	lines = append(lines, padRight(fmt.Sprintf("AI Data Lab · Bubble Tea + Go · source: %s", m.workspace.Source), width))
-	lines = append(lines, padRight(renderTabs(m.tab), width))
+	lines = append(lines, padRight(truncate(fmt.Sprintf("AI Data Lab · Bubble Tea + Go · source: %s", m.workspace.Source), width), width))
+	lines = append(lines, padRight(truncate(renderTabs(m.tab), width), width))
 	lines = append(lines, strings.Repeat("─", width))
 
 	contentHeight := maxInt(8, height-5)
@@ -482,6 +492,14 @@ func (m Model) View() tea.View {
 	lines = append(lines, content...)
 	lines = append(lines, strings.Repeat("─", width))
 	lines = append(lines, padRight(truncate(fmt.Sprintf("Status: %s", m.status), width), width))
+
+	// Safety net: no rendered line may exceed the terminal width. Panes and the
+	// resource table each enforce their own floors, so at very narrow widths the
+	// sum can still exceed `width`. ansi.Truncate is ANSI- and wide-char-aware, so
+	// this cannot corrupt the table's styling escape sequences.
+	for i, line := range lines {
+		lines[i] = ansi.Truncate(line, width, "")
+	}
 
 	// v2: terminal features are declarative View fields. tea.WithAltScreen() no
 	// longer exists as a ProgramOption (it was passed in run.go before this change).
@@ -525,23 +543,36 @@ func (m Model) renderOverview(width, height int) []string {
 }
 
 func (m Model) renderBrowser(width, height int, browser browserState) []string {
-	leftWidth := maxInt(32, width/3)
-	rightWidth := width - leftWidth - 3
-	listLines := []string{}
-	for index, resource := range browser.visible {
-		marker := "  "
-		if index == browser.selected {
-			marker = "› "
-		}
-		launchMarker := "•"
-		if launch.CanLaunch(resource) {
-			launchMarker = "▶"
-		}
-		listLines = append(listLines, truncate(fmt.Sprintf("%s%s %s", marker, launchMarker, resource.Title), leftWidth-4))
+	// Table floor: 12 runes of Resource + 3 of Run + 2*2 padding.
+	// Box floor: boxedWithHeight clamps innerWidth to >= 8, so a box is >= 12 wide.
+	const (
+		minTableWidth = 19
+		minBoxWidth   = 12
+		paneGap       = 3
+	)
+	leftWidth := maxInt(minTableWidth, width/3)
+	rightWidth := width - leftWidth - paneGap
+	sideBySide := rightWidth >= minBoxWidth
+	if !sideBySide {
+		// Not enough room for two panes. Rendering both would overflow the
+		// terminal, so the inspector is dropped and the table takes the width.
+		leftWidth = width
 	}
-	if len(listLines) == 0 {
-		listLines = []string{"No matching resources"}
+
+	// The resource list is a bubbles/table now. It renders its own frame, so it is
+	// NOT passed through boxedWithHeight: that helper word-wraps via
+	// strings.Fields, which would collapse the column padding and destroy alignment.
+	resourceTable := newResourceTable(browser, leftWidth, height-10)
+	tableLines := strings.Split(resourceTable.View(), "\n")
+
+	headerBox := boxed(browser.title, width, []string{browser.description})
+	searchLine := truncate(fmt.Sprintf("Focus: %s · %s", browser.focus, browser.search.View()), width)
+	toolbarLine := truncate(browser.resultsSummary()+" · "+browser.kindBreakdown()+"   "+browser.hintText(), width)
+
+	if !sideBySide {
+		return append([]string{headerBox, "", searchLine, toolbarLine, ""}, tableLines...)
 	}
+
 	resource, ok := browser.selectedResource()
 	detailLines := []string{}
 	if ok {
@@ -565,13 +596,106 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 		detailLines = []string{"No matching resources.", "", browser.actionText()}
 	}
 
-	headerBox := boxed(browser.title, width, []string{browser.description})
-	searchLine := truncate(fmt.Sprintf("Focus: %s · %s", browser.focus, browser.search.View()), width)
-	toolbarLine := truncate(browser.resultsSummary()+" · "+browser.kindBreakdown()+"   "+browser.hintText(), width)
-	leftBox := boxedWithHeight("Resources", leftWidth, listLines, height-10)
 	rightBox := boxedWithHeight("Inspector", rightWidth, detailLines, height-10)
-	joined := joinColumns(leftBox, rightBox, 3)
+	joined := joinColumns(tableLines, rightBox, paneGap)
 	return append([]string{headerBox, "", searchLine, toolbarLine, ""}, joined...)
+}
+
+// newResourceTable renders the visible catalog resources as a bubbles/table.
+//
+// The table is rebuilt on every render and its cursor is derived from
+// browserState.selected, so browserState stays the single source of truth for
+// selection. That keeps keyboard navigation (which mutates browserState) and the
+// rendered highlight from ever diverging.
+//
+// Sizing: a bubbles/table renders sum(columnWidths) + 2*ncols of padding and
+// separator runes, so the Resource column absorbs that overhead plus the fixed
+// columns for the table to occupy exactly `width`. The Kind column is dropped on
+// narrow layouts, because otherwise the fixed columns alone exceed the panel and
+// the two-column layout overflows the terminal.
+func newResourceTable(browser browserState, width, height int) table.Model {
+	const (
+		kindWidth = 14 // "Rendered video" is the longest humanKind value
+		runWidth  = 3
+		minName   = 12
+	)
+	// The Kind column is dropped on narrow layouts: the fixed columns alone would
+	// otherwise exceed the panel and overflow the terminal.
+	showKind := width >= minName+kindWidth+runWidth+6
+
+	// A bubbles/table renders sum(columnWidths) + 2*ncols of padding and separator
+	// runes, so the Resource column absorbs that overhead plus the fixed columns.
+	ncols := 2 // Resource + Run
+	fixed := runWidth
+	if showKind {
+		ncols = 3
+		fixed += kindWidth
+	}
+	nameWidth := maxInt(minName, width-fixed-2*ncols)
+
+	// Row arity MUST match the column count, or table.New panics inside
+	// renderRow with "index out of range".
+	rows := make([]table.Row, 0, len(browser.visible))
+	for index, resource := range browser.visible {
+		// The selection caret is carried as row *content*, not just the Selected
+		// style: the SVG generator strips ANSI, so a style-only highlight would
+		// vanish from the committed screenshots.
+		caret := "  "
+		if index == browser.selected {
+			caret = "› "
+		}
+		runMarker := "·"
+		if launch.CanLaunch(resource) {
+			runMarker = "▶"
+		}
+		if showKind {
+			rows = append(rows, table.Row{caret + resource.Title, humanKind(resource.Kind), runMarker})
+		} else {
+			rows = append(rows, table.Row{caret + resource.Title, runMarker})
+		}
+	}
+	empty := len(rows) == 0
+	if empty {
+		// An empty catalog or filter still needs a row so the user sees feedback and
+		// the cursor has something to sit on.
+		if showKind {
+			rows = append(rows, table.Row{"  No matching resources", "", ""})
+		} else {
+			rows = append(rows, table.Row{"  No matching resources", ""})
+		}
+	}
+
+	cols := []table.Column{{Title: "Resource", Width: nameWidth}}
+	if showKind {
+		cols = append(cols, table.Column{Title: "Kind", Width: kindWidth})
+	}
+	cols = append(cols, table.Column{Title: "Run", Width: runWidth})
+
+	model := table.New(
+		table.WithColumns(cols),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithWidth(width),
+		table.WithHeight(maxInt(3, height)),
+		table.WithStyles(resourceTableStyles()),
+	)
+	if !empty {
+		model.SetCursor(browser.selected)
+	}
+	return model
+}
+
+// resourceTableStyles themes the resource table to the app's palette. The TUI had
+// no lipgloss styles before, so the delta is deliberately small: an accent header
+// and an accent-fill highlight on the selected row.
+func resourceTableStyles() table.Styles {
+	styles := table.DefaultStyles()
+	styles.Header = styles.Header.Bold(true).Foreground(lipgloss.Color(accentColor))
+	styles.Selected = styles.Selected.
+		Bold(true).
+		Foreground(lipgloss.Color(panelColor)).
+		Background(lipgloss.Color(accentColor))
+	return styles
 }
 
 func (m Model) renderDoctor(width, height int) []string {
@@ -852,17 +976,12 @@ func truncate(text string, width int) string {
 	if width <= 0 {
 		return ""
 	}
-	if runeWidth(text) <= width {
+	if ansi.StringWidth(text) <= width {
 		return text
 	}
-	if width == 1 {
-		return "…"
-	}
-	runes := []rune(text)
-	if len(runes) > width-1 {
-		runes = runes[:width-1]
-	}
-	return string(runes) + "…"
+	// ansi.Truncate is ANSI- and wide-character aware, so it will not split an
+	// escape sequence and counts cells rather than runes.
+	return ansi.Truncate(text, width, "…")
 }
 
 func padRight(text string, width int) string {
@@ -870,7 +989,7 @@ func padRight(text string, width int) string {
 }
 
 func padRightWith(text string, width int, fill string) string {
-	current := runeWidth(text)
+	current := ansi.StringWidth(text)
 	if current >= width {
 		return text
 	}
@@ -880,8 +999,10 @@ func padRightWith(text string, width int, fill string) string {
 	return text + strings.Repeat(fill, width-current)
 }
 
+// runeWidth reports the terminal cell width of text, ignoring ANSI escapes and
+// accounting for wide characters.
 func runeWidth(text string) int {
-	return utf8.RuneCountInString(text)
+	return ansi.StringWidth(text)
 }
 
 func emptyIfNone(value string) string {
