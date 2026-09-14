@@ -57,17 +57,27 @@ func maxVisibleWidth(lines []string) int {
 
 var allTabs = []tabID{tabOverview, tabMap, tabLabs, tabDoctor}
 
+// effectiveWidth mirrors View()'s guard against a zero-size window: a window that
+// reports no size renders at a 120-column floor, so that is the width the render
+// must actually respect.
+func effectiveWidth(width int) int {
+	if width <= 0 {
+		return 120
+	}
+	return width
+}
+
 // TestLayoutFitsTerminalWidthAcrossTabs is the regression gate for the
 // two-column layout. bubbles/table renders sum(columnWidths) + 2*len(cols) of
 // padding, so an off-by-N column calculation silently overflows the terminal.
 func TestLayoutFitsTerminalWidthAcrossTabs(t *testing.T) {
-	for _, width := range []int{200, 150, 120, 100, 96, 80, 60, 40} {
+	for _, width := range []int{200, 150, 120, 100, 96, 80, 60, 40, 20, 0} {
 		for _, tab := range allTabs {
 			model := newTestModel(t)
 			lines := renderTab(t, model, tab, width, 40)
-			if got := maxVisibleWidth(lines); got > width {
+			if got := maxVisibleWidth(lines); got > effectiveWidth(width) {
 				t.Errorf("width=%d tab=%s: rendered %d visible columns, overflows by %d",
-					width, tab, got, got-width)
+					width, tab, got, got-effectiveWidth(width))
 			}
 		}
 	}
@@ -463,6 +473,102 @@ func TestHelpAndKeyChipsStillRender(t *testing.T) {
 	for _, want := range []string{"Keyboard Help", "Global keys", "Browser keys", "Doctor keys"} {
 		if !strings.Contains(joined, want) {
 			t.Errorf("help overlay missing %q", want)
+		}
+	}
+}
+
+// TestBrowserHeaderBoxSurvivesTheWidthNet is R2 / HZ-2.
+//
+// renderBrowser returned its header box as ONE multi-line element while its three
+// sibling renderers (renderOverview, renderDoctor, renderHelp) all flattened it.
+// Two separate things broke:
+//
+//   - the View() width net ran ansi.Truncate over that element. ansi.StringWidth
+//     counts \n as zero cells and does not reset, so the whole box measured as a
+//     single very long line; Truncate kept the top border and discarded the rest,
+//     so the header's description and bottom border never reached the screen.
+//   - fitHeight counts slice ELEMENTS, so a 3-line box was budgeted as one row and
+//     the frame rendered height+1 rows.
+//
+// Both are asserted here. The expectation is built with the same boxed() the
+// renderer uses, so a width-arithmetic change cannot make this test lie.
+func TestBrowserHeaderBoxSurvivesTheWidthNet(t *testing.T) {
+	const height = 24
+	cases := []struct {
+		tab   tabID
+		title string
+		desc  string
+	}{
+		{
+			tabMap,
+			"Workshop curriculum",
+			"Trace the workshop narrative, inspect section highlights, and use search plus focus cycling to move through the curriculum fast.",
+		},
+		{
+			tabLabs,
+			"Hands-on labs",
+			"Surface runnable notebooks and helper scripts first, then inspect command previews and launch the next step right from the terminal.",
+		},
+	}
+
+	for _, tc := range cases {
+		for _, width := range []int{150, 120, 100, 96, 80, 60, 40} {
+			model := newTestModel(t)
+			lines := renderTab(t, model, tc.tab, width, height)
+
+			if len(lines) != height {
+				t.Errorf("tab=%s width=%d: rendered %d rows, want %d (a multi-line element makes fitHeight under-count)",
+					tc.tab, width, len(lines), height)
+			}
+
+			wantBox := boxed(tc.title, width, []string{tc.desc})
+			if !strings.Contains(strings.Join(lines, "\n"), wantBox) {
+				t.Errorf("tab=%s width=%d: header box was damaged (HZ-2); want it to contain:\n%s\ngot:\n%s",
+					tc.tab, width, wantBox, strings.Join(lines, "\n"))
+			}
+		}
+	}
+}
+
+// TestClampLinesKeepsEveryLineOfAMultiLineElement covers the width net directly:
+// it must not corrupt input it does not own. Plain ansi.Truncate would keep the
+// box's top border and throw away the description and bottom border (HZ-2).
+func TestClampLinesKeepsEveryLineOfAMultiLineElement(t *testing.T) {
+	box := "╭─ Title ────────────╮\n│ a long description │\n╰─────────────────────╯"
+	got := clampLines([]string{box}, 12)
+	if len(got) != 3 {
+		t.Fatalf("clampLines turned a 3-line element into %d lines: %#v", len(got), got)
+	}
+	for _, line := range got {
+		if w := runeWidth(line); w > 12 {
+			t.Errorf("clamped line is %d cells wide, want <= 12: %q", w, line)
+		}
+	}
+	if !strings.Contains(strings.Join(got, "\n"), "╰") {
+		t.Errorf("clampLines dropped the bottom border: %#v", got)
+	}
+}
+
+// TestResourceTableRendersRowsAcrossTheWidthSweep is C8b.
+//
+// The sweep is the check that would have caught HZ-1: a bubbles/table whose nested
+// viewport never receives a width renders its HEADER and zero rows, silently. So a
+// no-panic assertion is not enough -- the header alone would satisfy it. The caret
+// is asserted because it is carried as row CONTENT (see the selection-caret test),
+// so it can only be present if a data row actually rendered.
+func TestResourceTableRendersRowsAcrossTheWidthSweep(t *testing.T) {
+	for _, width := range []int{150, 120, 100, 96, 80, 60, 40, 20} {
+		for _, tab := range []tabID{tabMap, tabLabs} {
+			model := newTestModel(t)
+			plain := strings.Join(renderTab(t, model, tab, width, 24), "\n")
+
+			if !strings.Contains(plain, "Resource") {
+				t.Errorf("tab=%s width=%d: table header missing, the table did not render at all", tab, width)
+			}
+			if !strings.Contains(plain, "›") {
+				t.Errorf("tab=%s width=%d: no selected-row caret, the table rendered no rows (HZ-1):\n%s",
+					tab, width, plain)
+			}
 		}
 	}
 }
