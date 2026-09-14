@@ -37,9 +37,12 @@ func publishedScreenshotDirs(t *testing.T) map[string]string {
 // The captures embed two kinds of environment noise that must be normalised before
 // two runs can be compared at all. Neither is UI:
 //
-//   - the overview's "Workspace root: <absolute path>" field, which differs per
-//     checkout (the two published copies were even generated on different machines,
-//     so they disagree today);
+//   - the overview's "Workspace root" field. CaptureSVGs rewrites the home directory
+//     to "~" before writing, so the capture can no longer publish an absolute path
+//     (see sanitisePublishedPaths). It can still differ per checkout whenever the
+//     repository does not sit at the same home-relative location - ~/personal/...
+//     against ~/code/... - so the field is normalised here as well, which is why this
+//     is still load-bearing rather than redundant;
 //   - the doctor's git check, which renders the live branch name and dirty-file
 //     count. The whole detail is normalised, padding and trailing border included:
 //     the detail sits inside a fixed-width box, so a count gaining a digit both
@@ -117,6 +120,124 @@ func TestCaptureSVGsCreatesArtifacts(t *testing.T) {
 // fixed state rather than the live tree, which changes what the published image shows.
 var driftExempt = map[string]string{
 	"tui-doctor.svg": "embeds the live git branch and dirty-file count; not byte-stable",
+}
+
+// TestSanitisePublishedPaths pins the two rewrites the published captures rely on,
+// and the boundary case that makes the home-directory pass safe.
+func TestSanitisePublishedPaths(t *testing.T) {
+	home, err := os.UserHomeDir()
+	if err != nil || home == "" {
+		t.Skip("no home directory in this environment")
+	}
+	sep := string(filepath.Separator)
+	root := filepath.Join(home, "personal", "data-in-ai-revolution")
+
+	tests := []struct {
+		name    string
+		content string
+		root    string
+		want    string
+	}{
+		{
+			name:    "home prefix becomes a tilde",
+			content: "Workspace root: " + root,
+			root:    root,
+			want:    "Workspace root: ~" + sep + filepath.Join("personal", "data-in-ai-revolution"),
+		},
+		{
+			// The home pass must match on a separator boundary. Without that,
+			// /home/bob would rewrite /home/bobby into ~by.
+			name:    "a sibling directory sharing the home prefix is untouched",
+			content: "Root: " + home + "by/checkout",
+			root:    filepath.Join(home, "personal"),
+			want:    "Root: " + home + "by/checkout",
+		},
+		{
+			name:    "a root outside the home directory becomes a placeholder",
+			content: "Root: /tmp/ci-workspace",
+			root:    "/tmp/ci-workspace",
+			want:    "Root: <workspace>",
+		},
+		{
+			name:    "content with no path is returned unchanged",
+			content: "Status: ready",
+			root:    root,
+			want:    "Status: ready",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := sanitisePublishedPaths(test.content, test.root); got != test.want {
+				t.Errorf("sanitisePublishedPaths(%q, %q) = %q, want %q",
+					test.content, test.root, got, test.want)
+			}
+		})
+	}
+}
+
+// TestPublishedScreenshotsContainNoAbsolutePaths is the guard that stops the leak
+// coming back. Both published directories are committed to a public repository and
+// the package-data copy ships inside the Python distribution, so an absolute path in
+// any of them publishes the developer's home directory.
+//
+// It checks the home directory itself as well as the common absolute roots, so a
+// capture generated from a checkout outside the home directory - a temp or CI
+// workspace - is caught too.
+func TestPublishedScreenshotsContainNoAbsolutePaths(t *testing.T) {
+	forbidden := []string{"/home/", "/Users/", "/root/", "/tmp/", `C:\Users\`}
+	if home, err := os.UserHomeDir(); err == nil && home != "" {
+		forbidden = append([]string{home}, forbidden...)
+	}
+
+	dirs := publishedScreenshotDirs(t)
+	names := make([]string, 0, len(dirs))
+	for name := range dirs {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	checked := 0
+	for _, dirName := range names {
+		entries, err := os.ReadDir(dirs[dirName])
+		if err != nil {
+			t.Errorf("read published screenshot directory %s: %v", dirName, err)
+			continue
+		}
+
+		found := 0
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".svg") {
+				continue
+			}
+			found++
+			checked++
+
+			path := filepath.Join(dirs[dirName], entry.Name())
+			data, err := os.ReadFile(path)
+			if err != nil {
+				t.Errorf("read %s: %v", path, err)
+				continue
+			}
+			content := string(data)
+			for _, bad := range forbidden {
+				if strings.Contains(content, bad) {
+					t.Errorf("%s/%s publishes an absolute local path (%q).\n"+
+						"The capture must be sanitised before it is written; see sanitisePublishedPaths.",
+						dirName, entry.Name(), bad)
+				}
+			}
+		}
+		if found == 0 {
+			t.Errorf("no .svg found in %s; this sweep would pass vacuously", dirName)
+		}
+	}
+
+	// Both directories publish four captures each, so anything much below that means
+	// the sweep stopped looking.
+	if checked < 8 {
+		t.Errorf("checked only %d published svg files; expected at least 8", checked)
+	}
 }
 
 // TestCommittedScreenshotsMatchCurrentUI is R3's drift gate. Every published
