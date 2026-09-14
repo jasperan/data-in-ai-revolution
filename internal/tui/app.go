@@ -587,11 +587,8 @@ func (m Model) View() tea.View {
 
 	// Safety net: no rendered line may exceed the terminal width. Panes and the
 	// resource table each enforce their own floors, so at very narrow widths the
-	// sum can still exceed `width`. ansi.Truncate is ANSI- and wide-char-aware, so
-	// this cannot corrupt the table's styling escape sequences.
-	for i, line := range lines {
-		lines[i] = ansi.Truncate(line, width, "")
-	}
+	// sum can still exceed `width`.
+	lines = clampLines(lines, width)
 
 	// v2: terminal features are declarative View fields. tea.WithAltScreen() no
 	// longer exists as a ProgramOption (it was passed in run.go before this change).
@@ -662,8 +659,16 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 	toolbarLine := truncate(browser.resultsSummary()+" · "+browser.kindBreakdown()+"   "+browser.hintText(), width)
 	launchLine := truncate(launchableProgressBar(browser.launchableCount(), browser.visibleCount(), maxInt(10, width/2)), width)
 
+	// flattenBoxes is mandatory here: headerBox is a multi-line box. Its three
+	// sibling renderers (renderOverview, renderDoctor, renderHelp) flatten for the
+	// same reason. Leaving it nested breaks two consumers at once:
+	//   - fitHeight counts slice ELEMENTS, so a 3-line box would be budgeted as one
+	//     row and the frame would overflow vertically;
+	//   - the View() width net truncates each element, and ansi.Truncate measures a
+	//     multi-line string as a single very long line, discarding every line past
+	//     the budget (HZ-2) and taking the box's text with it.
 	if !sideBySide {
-		return append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, tableLines...)
+		return flattenBoxes(append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, tableLines...))
 	}
 
 	resource, ok := browser.selectedResource()
@@ -691,7 +696,7 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 
 	rightBox := boxedWithHeight("Inspector", rightWidth, detailLines, height-10)
 	joined := joinColumns(tableLines, rightBox, paneGap)
-	return append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, joined...)
+	return flattenBoxes(append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, joined...))
 }
 
 // newResourceTable renders the visible catalog resources as a bubbles/table.
@@ -1121,6 +1126,24 @@ func wrapText(text string, width int) []string {
 		return []string{text}
 	}
 	return lines
+}
+
+// clampLines enforces the "no rendered line exceeds width" invariant.
+//
+// It is newline-aware on purpose. ansi.Truncate is ANSI- and wide-character-aware
+// but measures a multi-line string as one continuous line, because ansi.StringWidth
+// counts \n as zero cells and does not reset. Truncating a multi-line element
+// therefore discards every line after the budget instead of clamping the element
+// (HZ-2). Splitting first keeps each element whole; for the single-line input every
+// renderer actually produces this is an exact no-op.
+func clampLines(lines []string, width int) []string {
+	clamped := make([]string, 0, len(lines))
+	for _, line := range lines {
+		for _, part := range strings.Split(line, "\n") {
+			clamped = append(clamped, ansi.Truncate(part, width, ""))
+		}
+	}
+	return clamped
 }
 
 func truncate(text string, width int) string {
