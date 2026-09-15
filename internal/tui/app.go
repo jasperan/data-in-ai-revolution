@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"image/color"
 	"strings"
-	"unicode/utf8"
 
 	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/progress"
 	"charm.land/bubbles/v2/table"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -127,21 +125,16 @@ type browserState struct {
 	visible     []catalog.Resource
 	selected    int
 	focus       focusMode
-	search      textinput.Model
+	search      searchField
 }
 
 func newBrowserState(title, description, placeholder string, resources []catalog.Resource) browserState {
-	input := textinput.New()
-	input.Prompt = "Search: "
-	input.Placeholder = placeholder
-	input.CharLimit = 120
-	input.Blur()
 	b := browserState{
 		title:       title,
 		description: description,
 		all:         append([]catalog.Resource(nil), resources...),
 		focus:       focusList,
-		search:      input,
+		search:      newSearchField(placeholder),
 	}
 	b.applyFilter("")
 	return b
@@ -149,7 +142,7 @@ func newBrowserState(title, description, placeholder string, resources []catalog
 
 func (b *browserState) applyFilter(query string) {
 	query = strings.TrimSpace(strings.ToLower(query))
-	b.search.SetValue(query)
+	b.search.SetQuery(query)
 	if query == "" {
 		b.visible = append([]catalog.Resource(nil), b.all...)
 	} else {
@@ -193,21 +186,42 @@ func (b *browserState) launchableCount() int {
 	return count
 }
 
-func (b *browserState) focusSearch() {
+// focusSearch hands the keyboard to the filter editor.
+//
+// The command is the editor's cursor blink and must be propagated by the caller,
+// otherwise the caret does not render.
+func (b *browserState) focusSearch() tea.Cmd {
 	b.focus = focusSearch
-	b.search.Focus()
+	return b.search.Focus()
 }
 
-func (b *browserState) focusList() {
+// focusList returns the keyboard to the resource list and blurs the editor, which
+// also writes the editor's buffer back into the filter string.
+func (b *browserState) focusList() tea.Cmd {
 	b.focus = focusList
-	b.search.Blur()
+	return b.search.Blur()
 }
 
-func (b *browserState) cycleFocus() {
+func (b *browserState) cycleFocus() tea.Cmd {
 	if b.focus == focusSearch {
-		b.focusList()
-	} else {
-		b.focusSearch()
+		return b.focusList()
+	}
+	return b.focusSearch()
+}
+
+// searchPassThrough reports whether a key must still reach the global bindings while
+// the filter editor has focus.
+//
+// Everything else belongs to the editor. That is the point of the upgrade: the keys
+// the old hand-rolled editor reserved for navigation (j, k, 1-4, the arrows, home/end,
+// pgup/pgdown) could never be typed into the filter, and esc plus [ and ] remain the
+// documented ways out.
+func searchPassThrough(key string) bool {
+	switch key {
+	case "tab", "esc", "enter", "ctrl+c", "?", "[", "]":
+		return true
+	default:
+		return false
 	}
 }
 
@@ -225,7 +239,7 @@ func (b *browserState) move(delta int) {
 }
 
 func (b *browserState) resultsSummary() string {
-	query := strings.TrimSpace(b.search.Value())
+	query := strings.TrimSpace(b.search.Query())
 	summary := fmt.Sprintf("%d results · %d launchable · focus:%s", b.visibleCount(), b.launchableCount(), b.focus)
 	if query != "" {
 		summary += fmt.Sprintf(" · query: %s", query)
@@ -271,7 +285,7 @@ func (b *browserState) actionText() string {
 func (b *browserState) selectedIndexLabel() string {
 	resource, ok := b.selectedResource()
 	if !ok {
-		query := strings.TrimSpace(b.search.Value())
+		query := strings.TrimSpace(b.search.Query())
 		if query == "" {
 			return "0 results"
 		}
@@ -361,33 +375,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		if browser := m.activeBrowser(); browser != nil && browser.focus == focusSearch {
-			switch key {
-			case "tab", "esc", "up", "down", "j", "k", "enter", "ctrl+c", "1", "2", "3", "4", "?", "left", "right", "[", "]", "pgup", "pgdown", "home", "end":
-				// allow global navigation keys below
-			case "backspace", "delete":
-				query := []rune(browser.search.Value())
-				if len(query) > 0 {
-					query = query[:len(query)-1]
-				}
-				browser.applyFilter(string(query))
+			if !searchPassThrough(key) {
+				cmd := browser.search.Update(msg)
+				browser.applyFilter(browser.search.Query())
 				m.status = fmt.Sprintf("Filtered %s", browser.title)
-				return m, nil
-			case "space":
-				browser.applyFilter(browser.search.Value() + " ")
-				m.status = fmt.Sprintf("Filtered %s", browser.title)
-				return m, nil
-			default:
-				insert := ""
-				if msg.Text != "" {
-					insert = msg.Text
-				} else if utf8.RuneCountInString(key) == 1 {
-					insert = key
-				}
-				if insert != "" {
-					browser.applyFilter(browser.search.Value() + insert)
-					m.status = fmt.Sprintf("Filtered %s", browser.title)
-					return m, nil
-				}
+				return m, cmd
 			}
 		}
 		switch key {
@@ -413,34 +405,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		case "2":
 			m.tab = tabMap
-			m.mapView.focusList()
 			m.status = "Learning map focused"
-			return m, nil
+			return m, m.mapView.focusList()
 		case "3":
 			m.tab = tabLabs
-			m.labsView.focusList()
 			m.status = "Labs browser focused"
-			return m, nil
+			return m, m.labsView.focusList()
 		case "4":
 			m.tab = tabDoctor
 			m.status = "Environment doctor focused"
 			return m, nil
 		case "/":
 			if browser := m.activeBrowser(); browser != nil {
-				browser.focusSearch()
 				m.status = fmt.Sprintf("Search ready in %s", browser.title)
+				return m, browser.focusSearch()
 			}
 			return m, nil
 		case "tab":
 			if browser := m.activeBrowser(); browser != nil {
-				browser.cycleFocus()
 				m.status = fmt.Sprintf("Focus: %s", browser.focus)
+				return m, browser.cycleFocus()
 			}
 			return m, nil
 		case "esc":
 			if browser := m.activeBrowser(); browser != nil {
-				browser.focusList()
 				m.status = "Focus returned to list"
+				return m, browser.focusList()
 			}
 			return m, nil
 		case "up", "k":
@@ -492,12 +482,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.catalog = cat
 			m.doctor = doctor.Run(m.workspace.Dir)
 			m.mapView.all = append([]catalog.Resource(nil), cat.Sections...)
-			m.mapView.applyFilter(m.mapView.search.Value())
+			m.mapView.applyFilter(m.mapView.search.Query())
 			labsResources := append([]catalog.Resource{}, cat.Notebooks...)
 			labsResources = append(labsResources, cat.Scripts...)
 			labsResources = append(labsResources, cat.Videos...)
 			m.labsView.all = labsResources
-			m.labsView.applyFilter(m.labsView.search.Value())
+			m.labsView.applyFilter(m.labsView.search.Query())
 			m.status = "Catalog and doctor refreshed"
 			return m, nil
 		case "enter", "l":
@@ -521,12 +511,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		if browser := m.activeBrowser(); browser != nil && browser.focus == focusSearch {
-			updated, cmd := browser.search.Update(msg)
-			browser.search = updated
-			browser.applyFilter(browser.search.Value())
-			return m, cmd
-		}
 	}
 	return m, nil
 }
@@ -650,13 +634,23 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 	// The resource list is a bubbles/table now. It renders its own frame, so it is
 	// NOT passed through boxedWithHeight: that helper word-wraps via
 	// strings.Fields, which would collapse the column padding and destroy alignment.
-	resourceTable := newResourceTable(browser, leftWidth, height-10)
+	// The filter renders as one summary line, plus the themed editor box while it has
+	// focus. The box costs rows, so the budget the panes get shrinks by exactly the
+	// number of extra lines: without that, focusing the filter on a short terminal
+	// pushes the resource table past the frame.
+	searchLines := browser.search.RenderLines(width, browser.focus, browser.focus == focusSearch)
+	paneHeight := maxInt(4, height-10-(len(searchLines)-1))
+
+	resourceTable := newResourceTable(browser, leftWidth, paneHeight)
 	tableLines := strings.Split(resourceTable.View(), "\n")
 
 	headerBox := boxed(browser.title, width, []string{browser.description})
-	searchLine := truncate(fmt.Sprintf("Focus: %s · %s", browser.focus, browser.search.View()), width)
 	toolbarLine := truncate(browser.resultsSummary()+" · "+browser.kindBreakdown()+"   "+browser.hintText(), width)
 	launchLine := truncate(launchableProgressBar(browser.launchableCount(), browser.visibleCount(), maxInt(10, width/2)), width)
+	// head is the pane chrome in render order: header, blank spacer, the filter, then
+	// the toolbar and launch meter.
+	head := append([]string{headerBox, ""}, searchLines...)
+	head = append(head, toolbarLine, launchLine, "")
 
 	// flattenBoxes is mandatory here: headerBox is a multi-line box. Its three
 	// sibling renderers (renderOverview, renderDoctor, renderHelp) flatten for the
@@ -667,7 +661,7 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 	//     multi-line string as a single very long line, discarding every line past
 	//     the budget (HZ-2) and taking the box's text with it.
 	if !sideBySide {
-		return flattenBoxes(append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, tableLines...))
+		return flattenBoxes(append(head, tableLines...))
 	}
 
 	resource, ok := browser.selectedResource()
@@ -693,9 +687,9 @@ func (m Model) renderBrowser(width, height int, browser browserState) []string {
 		detailLines = []string{"No matching resources.", "", browser.actionText()}
 	}
 
-	rightBox := boxedWithHeight("Inspector", rightWidth, detailLines, height-10)
+	rightBox := boxedWithHeight("Inspector", rightWidth, detailLines, paneHeight)
 	joined := joinColumns(tableLines, rightBox, paneGap)
-	return flattenBoxes(append([]string{headerBox, "", searchLine, toolbarLine, launchLine, ""}, joined...))
+	return flattenBoxes(append(head, joined...))
 }
 
 // newResourceTable renders the visible catalog resources as a bubbles/table.

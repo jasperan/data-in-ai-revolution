@@ -220,18 +220,16 @@ func TestResourceTableKeepsVisibleSelectionCaret(t *testing.T) {
 	}
 }
 
-// TestSpaceKeyHandledWithoutNavigationChange guards the v2 space-bar change.
+// TestSpaceKeyHandledWithoutNavigationChange guards that space stays a search-input
+// action and does not fall through to a global binding (tab switch, quit).
 //
-// v1: space made msg.String() return " ", so the search handler's `case "space":`
-// was dead and space fell through to the default insert branch.
-// v2: space makes msg.String() return "space", so that case is now live.
+// The filter editor is a huh Input now, so the assertion moved from
+// bubbles/textinput's Method to the huh accessor, and the "no command" expectation
+// was dropped: huh re-arms the caret blink on every update, so a keystroke
+// legitimately returns a command. What matters - and what this still pins - is that
+// space reaches the filter and changes no navigation state.
 //
-// Both branches call applyFilter(search.Value() + " ") with an identical argument,
-// so the observable behaviour is unchanged. What this test pins down is the thing a
-// careless port would break: space must stay a search-input action and must not
-// fall through to a global binding (tab switch, quit).
-//
-// NOTE (pre-existing, NOT a v2 regression): applyFilter trims the query before
+// NOTE (pre-existing, NOT a regression): applyFilter trims the query before
 // storing it, so a query containing spaces is collapsed and spaces cannot be typed
 // into the search box at all. That is true on main as well. Fixing it would change
 // search semantics, so it is deliberately left alone and reported instead.
@@ -247,12 +245,9 @@ func TestSpaceKeyHandledWithoutNavigationChange(t *testing.T) {
 
 	tabBefore := model.tab
 	helpBefore := model.showHelp
-	updated, cmd := model.Update(space)
+	updated, _ := model.Update(space)
 	model = updated.(Model)
 
-	if cmd != nil {
-		t.Fatalf("space produced a command; a search keystroke should not")
-	}
 	if model.tab != tabBefore {
 		t.Fatalf("space changed tab from %s to %s", tabBefore, model.tab)
 	}
@@ -260,7 +255,7 @@ func TestSpaceKeyHandledWithoutNavigationChange(t *testing.T) {
 		t.Fatalf("space toggled the help overlay")
 	}
 	// applyFilter trims, so a lone space leaves the query empty (same as v1).
-	if got := model.labsView.search.Value(); got != "" {
+	if got := model.labsView.search.Query(); got != "" {
 		t.Fatalf("query = %q; applyFilter trims a lone space (v1 parity)", got)
 	}
 	if got := model.labsView.visibleCount(); got == 0 {
@@ -279,7 +274,7 @@ func TestPrintableKeysStillReachSearch(t *testing.T) {
 		updated, _ := model.Update(keyMsg(ch))
 		model = updated.(Model)
 	}
-	if got := model.labsView.search.Value(); got != "rag" {
+	if got := model.labsView.search.Query(); got != "rag" {
 		t.Fatalf("typed value = %q, want %q", got, "rag")
 	}
 }
