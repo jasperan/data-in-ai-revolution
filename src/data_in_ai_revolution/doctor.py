@@ -42,21 +42,24 @@ def default_command_checker(command: str) -> bool:
 
 
 def default_git_runner(repo_root: Path) -> tuple[str, str]:
-    branch = subprocess.run(
-        ["git", "branch", "--show-current"],
-        cwd=repo_root,
-        check=False,
-        capture_output=True,
-        text=True,
-    ).stdout.strip() or "detached"
-    dirty = subprocess.run(
-        ["git", "status", "--short"],
-        cwd=repo_root,
-        check=False,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-    return branch, dirty
+    def _git(*args: str) -> str:
+        try:
+            result = subprocess.run(
+                ["git", *args],
+                cwd=repo_root,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except OSError:
+            return ""
+        return result.stdout.strip()
+
+    try:
+        subprocess.run(["git", "--version"], check=False, capture_output=True)
+    except OSError:
+        return "unknown", ""
+    return _git("branch", "--show-current") or "detached", _git("status", "--short")
 
 
 def run_doctor(

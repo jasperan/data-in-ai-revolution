@@ -39,3 +39,14 @@ def test_doctor_markdown_formats_checks(repo_root):
     assert rendered.startswith("# Environment doctor")
     assert "Core TUI packages" in rendered
     assert "Git status" in rendered
+
+
+def test_default_git_runner_survives_missing_git(tmp_path, monkeypatch):
+    from data_in_ai_revolution import doctor
+
+    def boom(*args, **kwargs):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(doctor.subprocess, "run", boom)
+
+    assert doctor.default_git_runner(tmp_path) == ("unknown", "")
