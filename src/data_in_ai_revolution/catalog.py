@@ -186,7 +186,10 @@ def _parse_readme_sections(root: Path, readme_text: str) -> tuple[Resource, ...]
 def _parse_notebooks(root: Path, notebook_descriptions: dict[str, str]) -> tuple[Resource, ...]:
     resources: list[Resource] = []
     for notebook_path in sorted((root / "notebooks").glob("*.ipynb")):
-        notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+        try:
+            notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            notebook = {}
         headings = tuple(_extract_markdown_headings(notebook)[:8])
         title = headings[0].lstrip("# ").strip() if headings else notebook_path.stem.replace("_", " ").title()
         description = notebook_descriptions.get(notebook_path.name, "Hands-on notebook for exploring the workshop topic.")
@@ -251,7 +254,8 @@ def _extract_markdown_headings(notebook: dict) -> list[str]:
     for cell in notebook.get("cells", []):
         if cell.get("cell_type") != "markdown":
             continue
-        text = "".join(cell.get("source", []))
+        source = cell.get("source", "")
+        text = source if isinstance(source, str) else "".join(source)
         for line in text.splitlines():
             stripped = line.strip()
             if stripped.startswith("#"):

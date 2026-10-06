@@ -51,3 +51,23 @@ def test_discover_repo_root_falls_back_to_bundled_assets(tmp_path, monkeypatch):
     discovered = catalog_module.discover_repo_root(tmp_path / "nowhere")
 
     assert discovered == bundled_root
+
+
+def _mini_repo(tmp_path):
+    (tmp_path / "README.md").write_text("# Demo\n", encoding="utf-8")
+    (tmp_path / "notebooks").mkdir()
+    (tmp_path / "scripts").mkdir()
+    return tmp_path
+
+
+def test_build_catalog_skips_unreadable_notebook_json(tmp_path):
+    root = _mini_repo(tmp_path)
+    (root / "notebooks" / "broken_one.ipynb").write_text("{not json", encoding="utf-8")
+    (root / "notebooks" / "ok.ipynb").write_text(
+        '{"cells":[{"cell_type":"markdown","source":"# Fine\\ntext"}]}', encoding="utf-8"
+    )
+
+    catalog = build_catalog(root)
+
+    titles = {resource.title for resource in catalog.notebooks}
+    assert titles == {"Fine", "Broken One"}
