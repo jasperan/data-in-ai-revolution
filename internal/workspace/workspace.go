@@ -115,9 +115,10 @@ func Ensure(start string) (Root, error) {
 
 func EnsureBundledRoot() (string, error) {
 	extractOnce.Do(func() {
-		extractRoot = filepath.Join(os.TempDir(), "data-in-ai-revolution-go-bundle")
-		_ = os.RemoveAll(extractRoot)
-		extractErr = os.MkdirAll(extractRoot, 0o755)
+		// A private, unpredictable directory: a fixed path in the shared temp
+		// dir lets concurrent runs clobber each other and lets another local
+		// user plant scripts that the launcher would later execute.
+		extractRoot, extractErr = os.MkdirTemp("", "data-in-ai-revolution-go-bundle-")
 		if extractErr != nil {
 			return
 		}
