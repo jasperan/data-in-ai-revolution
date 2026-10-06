@@ -287,8 +287,8 @@ func parseVideos(root string) ([]Resource, error) {
 
 func extractNotebookHeadings(data []byte) []string {
 	type notebookCell struct {
-		CellType string            `json:"cell_type"`
-		Source   []json.RawMessage `json:"source"`
+		CellType string          `json:"cell_type"`
+		Source   json.RawMessage `json:"source"`
 	}
 	type notebook struct {
 		Cells []notebookCell `json:"cells"`
@@ -303,12 +303,7 @@ func extractNotebookHeadings(data []byte) []string {
 			continue
 		}
 		builder := strings.Builder{}
-		for _, part := range cell.Source {
-			var line string
-			if err := json.Unmarshal(part, &line); err == nil {
-				builder.WriteString(line)
-			}
-		}
+		builder.WriteString(cellSourceText(cell.Source))
 		for _, line := range strings.Split(builder.String(), "\n") {
 			trimmed := strings.TrimSpace(line)
 			if strings.HasPrefix(trimmed, "#") {
@@ -318,6 +313,20 @@ func extractNotebookHeadings(data []byte) []string {
 		}
 	}
 	return headings
+}
+
+// cellSourceText flattens an nbformat "source" field, which is either a single
+// string or a list of strings.
+func cellSourceText(raw json.RawMessage) string {
+	var single string
+	if err := json.Unmarshal(raw, &single); err == nil {
+		return single
+	}
+	var parts []string
+	if err := json.Unmarshal(raw, &parts); err != nil {
+		return ""
+	}
+	return strings.Join(parts, "")
 }
 
 func extractFirstParagraph(body string) string {
