@@ -12,9 +12,9 @@ const N = TOKENS.length;
 
 const HEAD_COLORS: string[] = [
   "#e8734a", // Head 1 orange
-  "#5ba8c8", // Head 2 cyan
-  "#4ade80", // Head 3 green
-  "#f472b6", // Head 4 pink
+  "#6f9fc0", // Head 2 cyan
+  "#4f9e8a", // Head 3 green
+  "#a8846f", // Head 4 pink
 ];
 
 const HEAD_LABELS = ["Head 1", "Head 2", "Head 3", "Head 4"];
@@ -121,7 +121,7 @@ export function AttentionHeadsWidget() {
         className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden"
         style={{ minHeight: 480 }}
       >
-        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+        <div className="text-xs text-muted-foreground mb-4 font-mono">
           Interactive &middot; Multi-Head Attention
         </div>
         <div className="h-64 flex items-center justify-center text-sm text-muted-foreground font-mono animate-pulse">
@@ -135,13 +135,13 @@ export function AttentionHeadsWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Multi-Head Attention
       </div>
 
       {/* Title */}
       <div className="mb-4">
-        <h3 className="text-lg font-semibold mb-1" style={{ color: "#9886c4" }}>
+        <h3 className="text-lg font-medium mb-1" style={{ color: "#6f9fc0" }}>
           Self-Attention Heads
         </h3>
         <p className="text-sm text-muted-foreground">
@@ -159,7 +159,7 @@ export function AttentionHeadsWidget() {
               setActiveHead(i);
               if (viewMode !== "single") setViewMode("single");
             }}
-            className="btn-mono text-xs px-3 py-1.5 rounded-md border transition-all duration-150 inline-flex items-center gap-1.5"
+            className="btn-mono text-xs px-3 py-1.5 rounded-md border transition-colors duration-150 inline-flex items-center gap-1.5"
             style={{
               borderColor:
                 viewMode === "single" && activeHead === i
@@ -189,13 +189,13 @@ export function AttentionHeadsWidget() {
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
-            className="btn-mono text-xs px-3 py-1.5 rounded-md border transition-all duration-150"
+            className="btn-mono text-xs px-3 py-1.5 rounded-md border transition-colors duration-150"
             style={{
               borderColor:
-                viewMode === mode ? "#9886c4" : "rgba(255,255,255,0.1)",
+                viewMode === mode ? "#6f9fc0" : "rgba(255,255,255,0.1)",
               background:
                 viewMode === mode ? "rgba(167,139,250,0.15)" : "transparent",
-              color: viewMode === mode ? "#9886c4" : "rgba(255,255,255,0.5)",
+              color: viewMode === mode ? "#6f9fc0" : "rgba(255,255,255,0.5)",
             }}
           >
             {mode === "single" ? "Single Head" : "All Heads"}
@@ -205,7 +205,7 @@ export function AttentionHeadsWidget() {
 
       {/* Input sentence */}
       <div className="flex items-center gap-1.5 mb-5 px-1">
-        <span className="text-[10px] text-muted-foreground font-mono opacity-50 mr-1">
+        <span className="text-[12px] text-muted-foreground font-mono opacity-50 mr-1">
           input
         </span>
         {TOKENS.map((t, i) => (
@@ -251,7 +251,7 @@ export function AttentionHeadsWidget() {
       >
         {viewMode === "single" ? (
           <span className="text-muted-foreground">
-            <span style={{ color: HEAD_COLORS[activeHead] }} className="font-semibold">
+            <span style={{ color: HEAD_COLORS[activeHead] }} className="font-medium">
               {HEAD_NAMES[activeHead]} Attention:
             </span>{" "}
             {HEAD_DESCRIPTIONS[activeHead]}
@@ -267,7 +267,7 @@ export function AttentionHeadsWidget() {
 
       {/* Legend */}
       <div className="mt-4 pt-3 border-t border-border">
-        <div className="flex flex-wrap gap-4 text-[11px] text-muted-foreground font-mono">
+        <div className="flex flex-wrap gap-4 text-[12px] text-muted-foreground font-mono">
           <span>
             <strong className="text-foreground">Q</strong> (query) attends to{" "}
             <strong className="text-foreground">K</strong> (key)
@@ -302,13 +302,13 @@ function SingleHeadView({
     <div className="space-y-0">
       {/* Query tokens (top row) */}
       <div className="flex justify-between px-2">
-        <span className="text-[10px] text-muted-foreground font-mono self-center mr-2 opacity-60">
+        <span className="text-[12px] text-muted-foreground font-mono self-center mr-2 opacity-60">
           Q
         </span>
         {TOKENS.map((t, i) => (
           <div
             key={i}
-            className="px-3 py-1.5 rounded-md text-sm font-mono cursor-pointer transition-all duration-150 select-none text-center"
+            className="px-3 py-1.5 rounded-md text-sm font-mono cursor-pointer transition-colors duration-150 select-none text-center"
             style={{
               backgroundColor:
                 hoveredToken === i
@@ -352,7 +352,7 @@ function SingleHeadView({
 
       {/* Key tokens (bottom row) */}
       <div className="flex justify-between px-2">
-        <span className="text-[10px] text-muted-foreground font-mono self-center mr-2 opacity-60">
+        <span className="text-[12px] text-muted-foreground font-mono self-center mr-2 opacity-60">
           K
         </span>
         {TOKENS.map((t, i) => {
@@ -361,7 +361,7 @@ function SingleHeadView({
           return (
             <div
               key={i}
-              className="px-3 py-1.5 rounded-md text-sm font-mono text-center transition-all duration-150"
+              className="px-3 py-1.5 rounded-md text-sm font-mono text-center transition-colors duration-150"
               style={{
                 backgroundColor: "rgba(255,255,255,0.05)",
                 color: hoveredToken !== null && strong ? color : "#a1a1aa",
@@ -373,7 +373,7 @@ function SingleHeadView({
               {t}
               {hoveredToken !== null && (
                 <span
-                  className="block text-[10px] mt-0.5 font-mono"
+                  className="block text-[12px] mt-0.5 font-mono"
                   style={{ opacity: 0.7, color }}
                 >
                   {w.toFixed(2)}
@@ -485,7 +485,7 @@ function MiniHeatmap({
       {/* Head label */}
       <div className="flex items-center gap-2 mb-2">
         <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
-        <span className="text-xs font-mono font-semibold" style={{ color }}>
+        <span className="text-xs font-mono font-medium" style={{ color }}>
           {HEAD_LABELS[headIndex]}: {HEAD_NAMES[headIndex]}
         </span>
       </div>
@@ -495,7 +495,7 @@ function MiniHeatmap({
         {TOKENS.map((t, i) => (
           <div
             key={i}
-            className="text-[9px] font-mono text-muted-foreground text-center truncate"
+            className="text-[12px] font-mono text-muted-foreground text-center truncate"
             style={{ width: 32 }}
           >
             {t}
@@ -514,7 +514,7 @@ function MiniHeatmap({
           >
             {/* Row label */}
             <div
-              className="text-[9px] font-mono text-muted-foreground text-right pr-1 truncate flex-shrink-0"
+              className="text-[12px] font-mono text-muted-foreground text-right pr-1 truncate flex-shrink-0"
               style={{
                 width: 36,
                 color: hoveredToken === qi ? color : undefined,
@@ -531,7 +531,7 @@ function MiniHeatmap({
               return (
                 <div
                   key={ki}
-                  className="flex items-center justify-center text-[8px] font-mono cursor-default transition-all duration-100"
+                  className="flex items-center justify-center text-[12px] font-mono cursor-default transition-colors duration-100"
                   style={{
                     width: 32,
                     height: 22,
@@ -580,7 +580,7 @@ function EntropyBar({
       className={`flex items-center gap-2 ${compact ? "mt-2" : "mt-4 justify-center"}`}
     >
       <span
-        className={`font-mono text-muted-foreground flex-shrink-0 ${compact ? "text-[9px]" : "text-[10px]"}`}
+        className={`font-mono text-muted-foreground flex-shrink-0 ${compact ? "text-[12px]" : "text-[12px]"}`}
       >
         Entropy:
       </span>
@@ -593,7 +593,7 @@ function EntropyBar({
         }}
       >
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="h-full rounded-full transition-colors duration-500"
           style={{
             width: `${ratio * 100}%`,
             background: color,
@@ -601,13 +601,13 @@ function EntropyBar({
         />
       </div>
       <span
-        className={`font-mono flex-shrink-0 ${compact ? "text-[9px]" : "text-[10px]"}`}
+        className={`font-mono flex-shrink-0 ${compact ? "text-[12px]" : "text-[12px]"}`}
         style={{ color }}
       >
         {ent.toFixed(2)} bits
       </span>
       {!compact && (
-        <span className="text-[9px] font-mono text-muted-foreground opacity-60 flex-shrink-0">
+        <span className="text-[12px] font-mono text-muted-foreground opacity-60 flex-shrink-0">
           ({label})
         </span>
       )}

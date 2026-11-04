@@ -102,14 +102,14 @@ const BOX_W = 180;
 const BOX_H = 32;
 const LAYER_GAP = 8;
 const BLOCK_GAP = 18;
-const ACCENT = "#38bdf8";
+const ACCENT = "#6f9fc0";
 const ACCENT_DIM = "rgba(56,189,248,0.15)";
 const ACCENT_GLOW = "rgba(56,189,248,0.5)";
 const TEXT_COLOR = "#e4e4e7";
 const TEXT_MUTED = "#a1a1aa";
 const BORDER_COLOR = "rgba(255,255,255,0.10)";
 const BG_BOX = "#1a1a1f";
-const MASK_COLOR = "#f472b6";
+const MASK_COLOR = "#a8846f";
 
 /* ------------------------------------------------------------------ */
 /*  Helper: build component list per layer for a mode                 */
@@ -129,7 +129,7 @@ function getBlockComponents(
     return [
       { id: "mha", label: "Multi-Head Attention", color: ACCENT, infoKey: "multi-head-attention" },
       { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-      { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
+      { id: "ffn", label: "Feed-Forward Network", color: "#6f9fc0", infoKey: "ffn" },
       { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
     ];
   }
@@ -137,7 +137,7 @@ function getBlockComponents(
     return [
       { id: "mma", label: "Masked Attention", color: MASK_COLOR, infoKey: "masked-attention" },
       { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-      { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
+      { id: "ffn", label: "Feed-Forward Network", color: "#6f9fc0", infoKey: "ffn" },
       { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
     ];
   }
@@ -146,7 +146,7 @@ function getBlockComponents(
     return [
       { id: "mha", label: "Multi-Head Attention", color: ACCENT, infoKey: "multi-head-attention" },
       { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-      { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
+      { id: "ffn", label: "Feed-Forward Network", color: "#6f9fc0", infoKey: "ffn" },
       { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
     ];
   }
@@ -154,9 +154,9 @@ function getBlockComponents(
   return [
     { id: "mma", label: "Masked Attention", color: MASK_COLOR, infoKey: "masked-attention" },
     { id: "an1", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-    { id: "xattn", label: "Cross-Attention", color: "#5ba8c8", infoKey: "cross-attention" },
+    { id: "xattn", label: "Cross-Attention", color: "#6f9fc0", infoKey: "cross-attention" },
     { id: "an2", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
-    { id: "ffn", label: "Feed-Forward Network", color: "#9886c4", infoKey: "ffn" },
+    { id: "ffn", label: "Feed-Forward Network", color: "#6f9fc0", infoKey: "ffn" },
     { id: "an3", label: "Add & Norm", color: TEXT_MUTED, infoKey: "add-norm" },
   ];
 }
@@ -199,7 +199,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Input Tokens",
-      color: "#4ade80",
+      color: "#4f9e8a",
     });
     encY += BOX_H + LAYER_GAP;
 
@@ -212,7 +212,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Embedding",
-      color: "#fbbf24",
+      color: "#e8734a",
     });
     encY += BOX_H + BLOCK_GAP;
 
@@ -245,7 +245,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Encoder Output",
-      color: "#5ba8c8",
+      color: "#6f9fc0",
     });
     encY += BOX_H + LAYER_GAP;
 
@@ -258,7 +258,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Target Tokens",
-      color: "#4ade80",
+      color: "#4f9e8a",
     });
     decY += BOX_H + LAYER_GAP;
 
@@ -271,7 +271,7 @@ function computeLayout(
       w: BOX_W,
       h: BOX_H,
       label: "Embedding",
-      color: "#fbbf24",
+      color: "#e8734a",
     });
     decY += BOX_H + BLOCK_GAP;
 
@@ -332,7 +332,7 @@ function computeLayout(
     w: BOX_W,
     h: BOX_H,
     label: "Input Tokens",
-    color: "#4ade80",
+    color: "#4f9e8a",
   });
   flowStops.push({ x: cx + BOX_W / 2, y: y + BOX_H / 2 });
   y += BOX_H + LAYER_GAP;
@@ -346,7 +346,7 @@ function computeLayout(
     w: BOX_W,
     h: BOX_H,
     label: "Embedding",
-    color: "#fbbf24",
+    color: "#e8734a",
   });
   flowStops.push({ x: cx + BOX_W / 2, y: y + BOX_H / 2 });
   y += BOX_H + BLOCK_GAP;
@@ -537,7 +537,7 @@ export function TransformerArchWidget() {
         className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden"
         style={{ minHeight: 400 }}
       >
-        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+        <div className="text-xs text-muted-foreground mb-4 font-mono">
           Interactive &middot; Transformer Architecture
         </div>
         <div
@@ -559,7 +559,7 @@ export function TransformerArchWidget() {
 
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Transformer Architecture
       </div>
 
@@ -727,14 +727,14 @@ export function TransformerArchWidget() {
                       y1={encOut.y + encOut.h / 2}
                       x2={ca.x}
                       y2={ca.y + ca.h / 2}
-                      stroke="rgba(91,168,200,0.3)"
+                      stroke="rgba(111,159,192,0.3)"
                       strokeWidth={1.5}
                       strokeDasharray="6,4"
                     />
                     {/* arrowhead */}
                     <polygon
                       points={`${ca.x},${ca.y + ca.h / 2} ${ca.x - 7},${ca.y + ca.h / 2 - 4} ${ca.x - 7},${ca.y + ca.h / 2 + 4}`}
-                      fill="rgba(91,168,200,0.5)"
+                      fill="rgba(111,159,192,0.5)"
                     />
                   </g>
                 ));
@@ -906,8 +906,8 @@ export function TransformerArchWidget() {
               style={{
                 fontSize: "0.65rem",
                 color: TEXT_MUTED,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                textTransform: "none",
+                letterSpacing: "0.01em",
                 marginBottom: 4,
               }}
             >
@@ -931,14 +931,14 @@ export function TransformerArchWidget() {
                   style={{
                     fontSize: "0.6rem",
                     color: TEXT_MUTED,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
+                    textTransform: "none",
+                    letterSpacing: "0.01em",
                     marginBottom: 2,
                   }}
                 >
                   Input
                 </div>
-                <div style={{ color: "#4ade80", fontSize: "0.65rem" }}>
+                <div style={{ color: "#4f9e8a", fontSize: "0.65rem" }}>
                   {selectedInfo.inputShape}
                 </div>
               </div>
@@ -947,8 +947,8 @@ export function TransformerArchWidget() {
                   style={{
                     fontSize: "0.6rem",
                     color: TEXT_MUTED,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
+                    textTransform: "none",
+                    letterSpacing: "0.01em",
                     marginBottom: 2,
                   }}
                 >

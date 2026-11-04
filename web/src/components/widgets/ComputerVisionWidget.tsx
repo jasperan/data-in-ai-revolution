@@ -21,17 +21,17 @@ const DETECTIONS: Detection[] = [
     class: "car",
     confidence: 0.96,
     bbox: [40, 180, 200, 120],
-    color: "#4ade80",
-    colorRgba: "rgba(74,222,128,0.25)",
-    colorFill: "rgba(74,222,128,0.35)",
+    color: "#4f9e8a",
+    colorRgba: "rgba(79,158,138,0.25)",
+    colorFill: "rgba(79,158,138,0.35)",
   },
   {
     class: "person",
     confidence: 0.89,
     bbox: [280, 120, 80, 180],
-    color: "#5ba8c8",
-    colorRgba: "rgba(91,168,200,0.25)",
-    colorFill: "rgba(91,168,200,0.35)",
+    color: "#6f9fc0",
+    colorRgba: "rgba(111,159,192,0.25)",
+    colorFill: "rgba(111,159,192,0.35)",
   },
   {
     class: "dog",
@@ -45,9 +45,9 @@ const DETECTIONS: Detection[] = [
     class: "traffic_light",
     confidence: 0.61,
     bbox: [460, 20, 40, 90],
-    color: "#f472b6",
-    colorRgba: "rgba(244,114,182,0.25)",
-    colorFill: "rgba(244,114,182,0.35)",
+    color: "#a8846f",
+    colorRgba: "rgba(168,132,111,0.25)",
+    colorFill: "rgba(168,132,111,0.35)",
   },
 ];
 
@@ -151,14 +151,14 @@ function drawScene(ctx: CanvasRenderingContext2D) {
   ctx.arc(320, 145, 14, 0, Math.PI * 2);
   ctx.fill();
   // Body
-  ctx.fillStyle = "#4a6fa5";
+  ctx.fillStyle = "#6f9fc0";
   ctx.fillRect(308, 160, 24, 50);
   // Legs
   ctx.fillStyle = "#3a3a4a";
   ctx.fillRect(310, 210, 9, 55);
   ctx.fillRect(323, 210, 9, 55);
   // Arms
-  ctx.fillStyle = "#4a6fa5";
+  ctx.fillStyle = "#6f9fc0";
   ctx.save();
   ctx.translate(308, 165);
   ctx.rotate(-0.2);
@@ -176,7 +176,7 @@ function drawScene(ctx: CanvasRenderingContext2D) {
 
   // --- Dog (bottom-right) ---
   // Body
-  ctx.fillStyle = "#8B6914";
+  ctx.fillStyle = "#a8846f";
   ctx.beginPath();
   ctx.ellipse(455, 278, 28, 16, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -196,13 +196,13 @@ function drawScene(ctx: CanvasRenderingContext2D) {
   ctx.arc(484, 266, 2, 0, Math.PI * 2);
   ctx.fill();
   // Legs
-  ctx.fillStyle = "#8B6914";
+  ctx.fillStyle = "#a8846f";
   ctx.fillRect(435, 290, 5, 14);
   ctx.fillRect(445, 290, 5, 14);
   ctx.fillRect(462, 290, 5, 14);
   ctx.fillRect(472, 290, 5, 14);
   // Tail
-  ctx.strokeStyle = "#8B6914";
+  ctx.strokeStyle = "#a8846f";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(428, 274);
@@ -546,19 +546,19 @@ export function ComputerVisionWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Computer Vision Detection
       </div>
 
       {/* Title + detection count */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 className="text-lg font-semibold text-foreground m-0">
+        <h3 className="text-lg font-medium text-foreground m-0">
           Object Detection
         </h3>
         <div className="flex items-center gap-3 font-mono text-xs">
           <span className="text-muted-foreground">
             Detected{" "}
-            <span className="font-semibold" style={{ color: "#4ade80" }}>
+            <span className="font-medium" style={{ color: "#4f9e8a" }}>
               {visibleCount}
             </span>
             <span className="text-muted-foreground">/{DETECTIONS.length}</span>
@@ -575,8 +575,8 @@ export function ComputerVisionWidget() {
             setSelectedIdx(null);
           }}
           style={{
-            borderColor: mode === "objects" ? "#4ade80" : undefined,
-            color: mode === "objects" ? "#4ade80" : undefined,
+            borderColor: mode === "objects" ? "#4f9e8a" : undefined,
+            color: mode === "objects" ? "#4f9e8a" : undefined,
           }}
         >
           Objects
@@ -588,8 +588,8 @@ export function ComputerVisionWidget() {
             setSelectedIdx(null);
           }}
           style={{
-            borderColor: mode === "segmentation" ? "#4ade80" : undefined,
-            color: mode === "segmentation" ? "#4ade80" : undefined,
+            borderColor: mode === "segmentation" ? "#4f9e8a" : undefined,
+            color: mode === "segmentation" ? "#4f9e8a" : undefined,
           }}
         >
           Segmentation
@@ -599,12 +599,12 @@ export function ComputerVisionWidget() {
       {/* Threshold slider */}
       <div className="mb-5">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+          <span className="text-xs text-muted-foreground font-mono">
             Confidence Threshold
           </span>
           <span
-            className="font-mono text-sm font-semibold"
-            style={{ color: "#4ade80" }}
+            className="font-mono text-sm font-medium"
+            style={{ color: "#4f9e8a" }}
           >
             {threshold.toFixed(2)}
           </span>
@@ -622,7 +622,7 @@ export function ComputerVisionWidget() {
           className="w-full"
           style={
             {
-              "--thumb-color": "#4ade80",
+              "--thumb-color": "#4f9e8a",
             } as React.CSSProperties
           }
         />
@@ -662,7 +662,7 @@ export function ComputerVisionWidget() {
                   setSelectedIdx(isSelected ? null : i);
                 }
               }}
-              className="flex items-center gap-1.5 font-mono text-xs transition-all duration-200"
+              className="flex items-center gap-1.5 font-mono text-xs transition-colors duration-200"
               style={{
                 opacity: belowThreshold ? 0.3 : 1,
                 cursor: belowThreshold ? "default" : "pointer",
@@ -712,7 +712,7 @@ export function ComputerVisionWidget() {
               }}
             />
             <span
-              className="font-semibold text-sm"
+              className="font-medium text-sm"
               style={{ color: DETECTIONS[selectedIdx].color }}
             >
               {DETECTIONS[selectedIdx].class}
@@ -721,7 +721,7 @@ export function ComputerVisionWidget() {
           <div className="grid grid-cols-2 gap-x-6 gap-y-1">
             <div>
               <span className="text-muted-foreground">Confidence:</span>{" "}
-              <span style={{ color: "#4ade80" }}>
+              <span style={{ color: "#4f9e8a" }}>
                 {(DETECTIONS[selectedIdx].confidence * 100).toFixed(1)}%
               </span>
             </div>
@@ -757,7 +757,7 @@ export function ComputerVisionWidget() {
 
       {/* JSON output */}
       <div>
-        <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+        <div className="text-xs text-muted-foreground font-mono mb-2">
           API Response
         </div>
         <div
@@ -777,7 +777,7 @@ export function ComputerVisionWidget() {
       {/* Hint */}
       <div className="text-xs text-muted-foreground font-mono text-center mt-4 opacity-60">
         Click a detection in the canvas or legend to inspect details. Adjust the{" "}
-        <span style={{ color: "#4ade80" }}>threshold</span> to filter by confidence.
+        <span style={{ color: "#4f9e8a" }}>threshold</span> to filter by confidence.
       </div>
     </div>
   );

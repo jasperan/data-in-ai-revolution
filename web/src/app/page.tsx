@@ -74,23 +74,18 @@ export default function Home() {
 
   return (
     <main>
-      {/* Noise texture overlay */}
-      <div className="noise-overlay" aria-hidden="true" />
-
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border px-4 md:px-6 py-3 flex items-center gap-4" role="navigation" aria-label="Main navigation">
-        <a href="#" className="flex items-center gap-2.5 font-bold text-foreground no-underline shrink-0" aria-label="Home">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center font-extrabold text-sm" style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>
-            D
-          </div>
-          <span className="hidden md:inline text-sm font-semibold tracking-tight">Data in AI</span>
+      <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border px-6 py-2.5 flex items-center gap-4" role="navigation" aria-label="Main navigation">
+        <a href="#" className="flex items-center font-medium text-foreground no-underline shrink-0" aria-label="Home">
+          <span className="text-sm">Data in AI</span>
+          <span className="font-mono text-xs text-muted-foreground ml-2">/ revolution</span>
         </a>
-        <div className="flex gap-3 md:gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide ml-auto">
+        <div className="flex gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide ml-auto">
           {SECTIONS.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => scrollToSection(id)}
-              className={`nav-link text-xs md:text-sm font-medium transition-colors bg-transparent border-none cursor-pointer p-0 ${
+              className={`nav-link text-xs font-mono bg-transparent border-none cursor-pointer p-0 ${
                 activeSection === id ? "text-foreground active" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -101,58 +96,63 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <header className="relative overflow-hidden py-20 md:py-28 px-6 hero-gradient">
-        <div className="hero-glow" aria-hidden="true" />
-        <div className="max-w-2xl mx-auto relative">
-          <div className="flex items-center gap-3 mb-8 text-sm flex-wrap">
-            <span className="font-mono text-xs text-muted-foreground" style={{ letterSpacing: "0.08em" }}>2026</span>
-            <span className="text-muted-foreground opacity-40">/</span>
-            <span className="font-mono text-xs text-muted-foreground" style={{ letterSpacing: "0.08em" }}>Interactive guide</span>
-            <span className="text-muted-foreground opacity-40">/</span>
-            <span className="font-mono text-xs px-2 py-0.5 rounded" style={{ background: "rgba(232, 115, 74, 0.1)", color: "var(--primary)", letterSpacing: "0.05em" }}>
-              9 explorations
-            </span>
+      <header className="py-16 md:py-24 px-6 border-b border-border">
+        <div className="max-w-5xl mx-auto grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div>
+            <p className="font-mono text-xs text-muted-foreground mb-6">
+              01 / 09 &middot; predictive ML
+            </p>
+            <h1 className="heading-display text-4xl md:text-5xl mb-5">
+              Data in the AI revolution
+            </h1>
+            <p className="text-base md:text-lg leading-relaxed max-w-xl text-muted-foreground mb-8">
+              From predictive ML and tokenization to embeddings, attention, transformers, vision,
+              RAG, fine-tuning, and quantization &mdash; nine stages of a data pipeline you can
+              operate by hand.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => scrollToSection("predictive")}
+                className="inline-flex items-center h-11 px-5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
+              >
+                Start at stage 01
+              </button>
+              <button
+                onClick={() => scrollToSection("rag")}
+                className="inline-flex items-center h-11 px-5 rounded-lg border border-border text-sm text-secondary-foreground hover:text-foreground hover:border-border-strong transition-colors"
+              >
+                Jump to RAG
+              </button>
+            </div>
           </div>
-          <h1 className="heading-display text-4xl md:text-6xl mb-5">
-            Data in the AI<br />Revolution
-          </h1>
-          <p className="text-lg md:text-xl leading-relaxed max-w-xl" style={{ color: "var(--muted-foreground)" }}>
-            From <span className="text-predictive">predictive ML</span> and{" "}
-            <span className="text-tokenization">tokenization</span> to{" "}
-            <span className="text-embeddings">embeddings</span>,{" "}
-            <span className="text-attention">attention</span>,{" "}
-            <span className="text-transformer">transformers</span>,{" "}
-            <span className="text-vision">vision</span>,{" "}
-            <span className="text-rag">RAG</span>,{" "}
-            <span className="text-finetune">fine-tuning</span>, and{" "}
-            <span className="text-quantization">quantization</span>. Explore every concept hands-on.
-          </p>
+          <PipelinePanel />
         </div>
       </header>
 
       {/* Content */}
-      <div id="main-content" className="max-w-2xl mx-auto px-6 pb-28">
+      <div id="main-content" className="max-w-3xl mx-auto px-6 pb-28">
         {/* Attention complexity preview chart */}
         <section className="reveal scroll-mt-20 mt-10">
           <p className="text-muted-foreground mb-3 leading-relaxed text-sm">
-            Why does context length matter? <span className="text-attention">Self-attention</span> scales quadratically with sequence length, while <strong className="text-foreground font-semibold">sparse attention</strong> variants approximate it in O(n log n). Toggle scales and curves below.
+            Why does context length matter? <span className="text-attention">Self-attention</span> scales quadratically with sequence length, while <strong className="text-foreground font-medium">sparse attention</strong> variants approximate it in O(n log n). Toggle scales and curves below.
           </p>
           <ComplexityChart
             label="Attention scaling: dense vs sparse"
             nRange={[1, 512]}
             curves={[
-              { label: "Dense attention", complexity: "O(n^2)", color: "#9886c4", space: "O(n^2)" },
-              { label: "Sparse attention", complexity: "O(n log n)", color: "#5b9ac8", space: "O(n)" },
-              { label: "Linear attention", complexity: "O(n)", color: "#6ec47e", space: "O(n)" },
+              { label: "Dense attention", complexity: "O(n^2)", color: "#e8734a", space: "O(n^2)" },
+              { label: "Sparse attention", complexity: "O(n log n)", color: "#b4b5bc", space: "O(n)" },
+              { label: "Linear attention", complexity: "O(n)", color: "#6b6d76", space: "O(n)" },
             ]}
           />
         </section>
 
         {/* Table of Contents */}
         <div className="bg-card border border-border rounded-xl p-6 md:p-8 my-10">
-          <p className="font-mono text-xs tracking-wider mb-5" style={{ color: "var(--primary)", opacity: 0.6 }}>
-            Contents
-          </p>
+          <div className="flex items-baseline justify-between border-b border-border pb-3 mb-4">
+            <p className="font-mono text-xs text-muted-foreground">Contents</p>
+            <span className="font-mono text-xs text-muted-foreground">09 stages</span>
+          </div>
           <div className="space-y-0">
             {SECTIONS.map(({ id, num }) => (
               <button
@@ -178,7 +178,7 @@ export default function Home() {
             Before the era of large language models, the dominant paradigm in AI was <span className="text-predictive">predictive machine learning</span> — training models on structured, tabular data to forecast outcomes. This is still the backbone of most production AI systems in industries from finance to healthcare.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            The key challenge is <strong className="text-foreground font-semibold">feature engineering</strong>: converting raw data (names, cities, categories) into numerical features a model can process. Categorical variables need encoding, continuous variables need scaling, and domain knowledge determines which derived features matter most.
+            The key challenge is <strong className="text-foreground font-medium">feature engineering</strong>: converting raw data (names, cities, categories) into numerical features a model can process. Categorical variables need encoding, continuous variables need scaling, and domain knowledge determines which derived features matter most.
           </p>
           <p className="text-muted-foreground mb-5 leading-relaxed">
             Adjust the customer data below and watch how the pipeline transforms raw inputs through <span className="text-predictive">encoding</span>, <span className="text-predictive">feature selection</span>, and <span className="text-predictive">model inference</span> to produce a purchase probability prediction.
@@ -194,7 +194,7 @@ export default function Home() {
         <section id="tokenization" className="reveal scroll-mt-20">
           <SectionHeader num="02" title="BPE tokenization" />
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            Language models don&apos;t read text the way humans do. Before any processing, text must be split into <span className="text-tokenization">tokens</span> — discrete units the model understands. <strong className="text-foreground font-semibold">Byte Pair Encoding (BPE)</strong> is the most widely used tokenization algorithm, powering GPT, LLaMA, and most modern LLMs.
+            Language models don&apos;t read text the way humans do. Before any processing, text must be split into <span className="text-tokenization">tokens</span> — discrete units the model understands. <strong className="text-foreground font-medium">Byte Pair Encoding (BPE)</strong> is the most widely used tokenization algorithm, powering GPT, LLaMA, and most modern LLMs.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
             BPE starts with individual characters and iteratively merges the most frequent adjacent pair into a new token. After enough merges, common words become single tokens while rare words stay split into subword pieces. This elegantly handles any text, including words the model has never seen before.
@@ -232,10 +232,10 @@ export default function Home() {
         <section id="attention" className="reveal scroll-mt-20">
           <SectionHeader num="04" title="Multi-head self-attention" />
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            The <span className="text-attention">self-attention mechanism</span> is the core innovation that makes transformers powerful. For each token, attention computes how much every other token in the sequence should influence its representation. This is done through <strong className="text-foreground font-semibold">queries</strong>, <strong className="text-foreground font-semibold">keys</strong>, and <strong className="text-foreground font-semibold">values</strong> — a token&apos;s query asks &quot;what am I looking for?&quot;, each token&apos;s key answers &quot;what do I contain?&quot;, and the value provides the actual information to pass along.
+            The <span className="text-attention">self-attention mechanism</span> is the core innovation that makes transformers powerful. For each token, attention computes how much every other token in the sequence should influence its representation. This is done through <strong className="text-foreground font-medium">queries</strong>, <strong className="text-foreground font-medium">keys</strong>, and <strong className="text-foreground font-medium">values</strong> — a token&apos;s query asks &quot;what am I looking for?&quot;, each token&apos;s key answers &quot;what do I contain?&quot;, and the value provides the actual information to pass along.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            <strong className="text-foreground font-semibold">Multi-head</strong> attention runs this process multiple times in parallel with different learned projections. Each <span className="text-attention">head</span> learns to attend to different linguistic patterns: one head might track syntactic relationships, another might focus on adjacent tokens, and another might capture long-range dependencies.
+            <strong className="text-foreground font-medium">Multi-head</strong> attention runs this process multiple times in parallel with different learned projections. Each <span className="text-attention">head</span> learns to attend to different linguistic patterns: one head might track syntactic relationships, another might focus on adjacent tokens, and another might capture long-range dependencies.
           </p>
           <p className="text-muted-foreground mb-5 leading-relaxed">
             Select different attention heads below and hover over tokens to see what each head attends to. Notice how each head captures a different type of linguistic relationship.
@@ -254,10 +254,10 @@ export default function Home() {
             The <span className="text-transformer">transformer</span> is the architecture behind every major language model. Introduced in 2017, it replaced recurrent networks with pure attention, enabling massive parallelization and capturing long-range dependencies without the vanishing gradient problem.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            Three variants dominate modern AI: <strong className="text-foreground font-semibold">encoder-only</strong> models like BERT excel at understanding tasks (classification, NER) using bidirectional attention. <strong className="text-foreground font-semibold">Decoder-only</strong> models like GPT use causal (masked) attention for text generation. <strong className="text-foreground font-semibold">Encoder-decoder</strong> models like T5 combine both for sequence-to-sequence tasks like translation.
+            Three variants dominate modern AI: <strong className="text-foreground font-medium">encoder-only</strong> models like BERT excel at understanding tasks (classification, NER) using bidirectional attention. <strong className="text-foreground font-medium">Decoder-only</strong> models like GPT use causal (masked) attention for text generation. <strong className="text-foreground font-medium">Encoder-decoder</strong> models like T5 combine both for sequence-to-sequence tasks like translation.
           </p>
           <p className="text-muted-foreground mb-5 leading-relaxed">
-            Toggle between architectures below and click any component to learn what it does. Hit <strong className="text-foreground font-semibold">Play</strong> to animate data flowing through the layers.
+            Toggle between architectures below and click any component to learn what it does. Hit <strong className="text-foreground font-medium">Play</strong> to animate data flowing through the layers.
           </p>
           <TransformerArchWidget />
           <p className="text-muted-foreground mb-4 leading-relaxed">
@@ -273,10 +273,10 @@ export default function Home() {
             <span className="text-vision">Computer vision</span> teaches machines to interpret visual data. Object detection, locating and classifying objects within images, is one of the most impactful applications, powering everything from autonomous vehicles to medical imaging.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            Modern detectors output <strong className="text-foreground font-semibold">bounding boxes</strong> with class labels and <strong className="text-foreground font-semibold">confidence scores</strong>. A confidence threshold filters out uncertain detections: too low and you get false positives, too high and you miss real objects. Finding the right threshold is a core challenge in production vision systems.
+            Modern detectors output <strong className="text-foreground font-medium">bounding boxes</strong> with class labels and <strong className="text-foreground font-medium">confidence scores</strong>. A confidence threshold filters out uncertain detections: too low and you get false positives, too high and you miss real objects. Finding the right threshold is a core challenge in production vision systems.
           </p>
           <p className="text-muted-foreground mb-5 leading-relaxed">
-            Drag the <strong className="text-foreground font-semibold">confidence threshold</strong> slider below to see how it affects which objects are detected. Toggle between detection modes to see bounding boxes and segmentation masks.
+            Drag the <strong className="text-foreground font-medium">confidence threshold</strong> slider below to see how it affects which objects are detected. Toggle between detection modes to see bounding boxes and segmentation masks.
           </p>
           <ComputerVisionWidget />
           <p className="text-muted-foreground mb-4 leading-relaxed">
@@ -295,7 +295,7 @@ export default function Home() {
             The pipeline has six stages: the user&apos;s <span className="text-rag">question</span> is embedded into a vector, that vector is used for <span className="text-embeddings">similarity search</span> against a document store, the top-k <span className="text-rag">retrieved chunks</span> are assembled into a prompt template, and the LLM generates a <span className="text-rag">grounded response</span>.
           </p>
           <p className="text-muted-foreground mb-5 leading-relaxed">
-            Type a question and click <strong className="text-foreground font-semibold">Run Pipeline</strong> to watch each stage execute. Click any stage to inspect its intermediate output.
+            Type a question and click <strong className="text-foreground font-medium">Run Pipeline</strong> to watch each stage execute. Click any stage to inspect its intermediate output.
           </p>
           <RagPipelineWidget />
           <p className="text-muted-foreground mb-4 leading-relaxed">
@@ -308,7 +308,7 @@ export default function Home() {
         <section id="finetuning" className="reveal scroll-mt-20">
           <SectionHeader num="08" title="Fine-tuning data formats" />
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            <span className="text-finetune">Fine-tuning</span> adapts a pre-trained model to a specific task. The data format determines what the model learns. Three approaches dominate: <strong className="text-foreground font-semibold">Supervised Fine-Tuning (SFT)</strong> uses instruction-response pairs, <strong className="text-foreground font-semibold">RLHF</strong> uses human preference rankings, and <strong className="text-foreground font-semibold">DPO</strong> simplifies preference learning without a separate reward model.
+            <span className="text-finetune">Fine-tuning</span> adapts a pre-trained model to a specific task. The data format determines what the model learns. Three approaches dominate: <strong className="text-foreground font-medium">Supervised Fine-Tuning (SFT)</strong> uses instruction-response pairs, <strong className="text-foreground font-medium">RLHF</strong> uses human preference rankings, and <strong className="text-foreground font-medium">DPO</strong> simplifies preference learning without a separate reward model.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
             Data quality trumps quantity in fine-tuning. A curated dataset of 1,000 high-quality examples consistently outperforms 100,000 noisy ones. Each approach requires a specific data structure, and getting the format right is essential before training begins.
@@ -330,7 +330,7 @@ export default function Home() {
             A 70-billion parameter model in FP32 requires 280 GB of memory, far too much for most hardware. <span className="text-quantization">Quantization</span> compresses model weights from high-precision floating point (FP32) to lower-precision formats (FP16, INT8, INT4), dramatically reducing memory and compute requirements.
           </p>
           <p className="text-muted-foreground mb-4 leading-relaxed">
-            The process works by mapping continuous float values to discrete integer bins. A <strong className="text-foreground font-semibold">scale factor</strong> and <strong className="text-foreground font-semibold">zero point</strong> define the mapping. The trade-off is precision: each weight gets rounded, introducing <span className="text-quantization">quantization error</span>. Remarkably, INT8 quantization typically retains 99%+ of model accuracy while cutting size by 4x.
+            The process works by mapping continuous float values to discrete integer bins. A <strong className="text-foreground font-medium">scale factor</strong> and <strong className="text-foreground font-medium">zero point</strong> define the mapping. The trade-off is precision: each weight gets rounded, introducing <span className="text-quantization">quantization error</span>. Remarkably, INT8 quantization typically retains 99%+ of model accuracy while cutting size by 4x.
           </p>
           <p className="text-muted-foreground mb-5 leading-relaxed">
             Toggle between bit widths below and watch how weight values get compressed. Hover over matrix cells to see the exact quantization error for each weight.
@@ -362,8 +362,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-6 h-6 rounded-md flex items-center justify-center font-extrabold text-xs" style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>D</div>
-                <span className="font-semibold tracking-tight">Data in the AI Revolution</span>
+                <span className="text-sm font-medium">Data in the AI Revolution</span>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
                 9 interactive explorations covering the core concepts that power modern AI systems.
@@ -389,9 +388,63 @@ export default function Home() {
 /* ------------------------------------------------------------------ */
 function SectionHeader({ num, title }: { num: string; title: string }) {
   return (
-    <div className="mt-16 mb-5">
-      <span className="section-number">{num}</span>
-      <h2 className="heading-display text-3xl md:text-4xl mt-1">{title}</h2>
+    <div className="mt-16 mb-6 border-l border-border pl-5">
+      <div className="font-mono text-xs text-muted-foreground mb-2 tabular-nums">
+        stage {num} / 09
+      </div>
+      <h2 className="heading-display text-2xl md:text-3xl">{title}</h2>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hero panel: the RAG assembly line, drawn as a running manifest     */
+/* ------------------------------------------------------------------ */
+const PIPELINE_STAGES = [
+  { num: "01", label: "question", meta: "user text" },
+  { num: "02", label: "embed query", meta: "768-d" },
+  { num: "03", label: "similarity search", meta: "top-3" },
+  { num: "04", label: "prompt template", meta: "2.4k tok" },
+  { num: "05", label: "generate", meta: "grounded" },
+];
+
+function PipelinePanel() {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-6">
+      <div className="flex items-center justify-between font-mono text-xs text-muted-foreground mb-4">
+        <span>pipeline &middot; running</span>
+        <span className="flex items-center gap-2">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+          stage 03
+        </span>
+      </div>
+      <ol className="m-0 p-0 list-none">
+        {PIPELINE_STAGES.map((stage, i) => {
+          const active = stage.num === "03";
+          return (
+            <li key={stage.num} className="relative flex items-baseline gap-3 py-2.5">
+              <span className="font-mono text-xs tabular-nums text-muted-foreground w-6 shrink-0">
+                {stage.num}
+              </span>
+              <span
+                className={`text-sm ${active ? "text-primary font-medium" : "text-secondary-foreground"}`}
+              >
+                {stage.label}
+              </span>
+              <span className="ml-auto font-mono text-xs text-muted-foreground">{stage.meta}</span>
+              {i < PIPELINE_STAGES.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-[33px] bottom-0 w-px h-2 bg-border"
+                />
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      <p className="font-mono text-xs text-muted-foreground border-t border-border pt-3 mt-3">
+        six stages in the full widget &middot; inspect any one
+      </p>
     </div>
   );
 }

@@ -88,7 +88,7 @@ export default function ComplexityChart({
 
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive · {label}
       </div>
 
@@ -177,7 +177,7 @@ export default function ComplexityChart({
 
       <table className="w-full mt-4 text-sm font-mono">
         <thead>
-          <tr className="text-xs text-muted-foreground uppercase tracking-wider">
+          <tr className="text-xs text-muted-foreground">
             <th className="text-left py-1">algo</th>
             <th className="text-left py-1">time</th>
             <th className="text-left py-1">space</th>

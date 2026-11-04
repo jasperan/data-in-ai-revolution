@@ -22,10 +22,10 @@ interface WordEntry {
 }
 
 const GROUP_COLORS: Record<string, string> = {
-  animals: "#4ade80",
-  colors: "#f472b6",
-  actions: "#fbbf24",
-  tech: "#5ba8c8",
+  animals: "#4f9e8a",
+  colors: "#a8846f",
+  actions: "#e8734a",
+  tech: "#6f9fc0",
 };
 
 const GROUP_LABELS: Record<string, string> = {
@@ -206,7 +206,7 @@ function ScatterPlot({ words, hoveredWord, onHover }: ScatterProps) {
         ctx.beginPath();
         ctx.moveTo(hx, hy);
         ctx.lineTo(nx, ny);
-        ctx.strokeStyle = "rgba(91,168,200,0.35)";
+        ctx.strokeStyle = "rgba(111,159,192,0.35)";
         ctx.lineWidth = 1.5;
         ctx.setLineDash([4, 4]);
         ctx.stroke();
@@ -217,7 +217,7 @@ function ScatterPlot({ words, hoveredWord, onHover }: ScatterProps) {
         const midX = (hx + nx) / 2;
         const midY = (hy + ny) / 2;
         ctx.font = "500 10px 'JetBrains Mono', monospace";
-        ctx.fillStyle = "rgba(91,168,200,0.7)";
+        ctx.fillStyle = "rgba(111,159,192,0.7)";
         ctx.textAlign = "center";
         ctx.fillText(sim.toFixed(2), midX, midY - 5);
       }
@@ -452,7 +452,7 @@ function SimilarityMatrix({ words }: MatrixProps) {
                       {" / "}
                       <span style={{ color: GROUP_COLORS[colW.group] }}>{colW.word}</span>
                       {": "}
-                      <span style={{ color: "#5ba8c8", fontWeight: 600 }}>{sim.toFixed(3)}</span>
+                      <span style={{ color: "#6f9fc0", fontWeight: 600 }}>{sim.toFixed(3)}</span>
                     </div>
                   )}
                 </div>
@@ -518,7 +518,7 @@ export function EmbeddingsWidget() {
         className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden"
         style={{ minHeight: 400 }}
       >
-        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+        <div className="text-xs text-muted-foreground mb-4 font-mono">
           Interactive &middot; Embeddings Explorer
         </div>
         <div
@@ -540,7 +540,7 @@ export function EmbeddingsWidget() {
 
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Embeddings Explorer
       </div>
 
@@ -657,8 +657,8 @@ export function EmbeddingsWidget() {
           style={{
             marginTop: 12,
             padding: "8px 12px",
-            background: "rgba(91,168,200,0.06)",
-            border: "1px solid rgba(91,168,200,0.15)",
+            background: "rgba(111,159,192,0.06)",
+            border: "1px solid rgba(111,159,192,0.15)",
             borderRadius: 8,
             fontFamily: "var(--font-mono)",
             fontSize: "0.72rem",
@@ -668,7 +668,7 @@ export function EmbeddingsWidget() {
             gap: 12,
           }}
         >
-          <span style={{ color: "#5ba8c8", fontWeight: 600 }}>
+          <span style={{ color: "#6f9fc0", fontWeight: 600 }}>
             {hoveredWord}
           </span>
           <span style={{ color: "var(--muted-foreground)" }}>similarities:</span>

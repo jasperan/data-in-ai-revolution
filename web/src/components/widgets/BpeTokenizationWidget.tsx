@@ -8,26 +8,26 @@ import { useClientMounted } from "@/hooks/useClientMounted";
 /* ------------------------------------------------------------------ */
 const TOKEN_COLORS = [
   "rgba(232,115,74,0.25)", // orange
-  "rgba(91,168,200,0.25)", // cyan
+  "rgba(111,159,192,0.25)", // cyan
   "rgba(167,139,250,0.25)", // purple
-  "rgba(74,222,128,0.25)", // green
-  "rgba(244,114,182,0.25)", // pink
+  "rgba(79,158,138,0.25)", // green
+  "rgba(168,132,111,0.25)", // pink
   "rgba(251,191,36,0.25)", // yellow
   "rgba(56,189,248,0.25)", // sky
-  "rgba(52,211,153,0.25)", // emerald
+  "rgba(79,158,138,0.25)", // emerald
   "rgba(248,113,113,0.25)", // red
   "rgba(163,230,53,0.25)", // lime
 ];
 
 const TOKEN_BORDERS = [
   "rgba(232,115,74,0.5)",
-  "rgba(91,168,200,0.5)",
+  "rgba(111,159,192,0.5)",
   "rgba(167,139,250,0.5)",
-  "rgba(74,222,128,0.5)",
-  "rgba(244,114,182,0.5)",
+  "rgba(79,158,138,0.5)",
+  "rgba(168,132,111,0.5)",
   "rgba(251,191,36,0.5)",
   "rgba(56,189,248,0.5)",
-  "rgba(52,211,153,0.5)",
+  "rgba(79,158,138,0.5)",
   "rgba(248,113,113,0.5)",
   "rgba(163,230,53,0.5)",
 ];
@@ -294,24 +294,24 @@ export function BpeTokenizationWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; BPE Tokenization
       </div>
 
       {/* Title + vocab counter */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 className="text-lg font-semibold text-foreground m-0">
+        <h3 className="text-lg font-medium text-foreground m-0">
           Byte Pair Encoding
         </h3>
         <div className="flex items-center gap-3 font-mono text-xs">
           <span className="text-muted-foreground">
             Step{" "}
-            <span className="text-foreground font-semibold">{stepCount}</span>
+            <span className="text-foreground font-medium">{stepCount}</span>
           </span>
           <span className="text-muted-foreground">
             Vocab{" "}
             <span
-              className="font-semibold"
+              className="font-medium"
               style={{ color: "#e8734a" }}
             >
               {vocabSize}
@@ -364,7 +364,7 @@ export function BpeTokenizationWidget() {
         {isDone && (
           <span
             className="font-mono text-xs self-center ml-2"
-            style={{ color: "#4ade80" }}
+            style={{ color: "#4f9e8a" }}
           >
             Done -- no more merges
           </span>
@@ -373,7 +373,7 @@ export function BpeTokenizationWidget() {
 
       {/* Corpus display */}
       <div className="mb-5">
-        <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+        <div className="text-xs text-muted-foreground font-mono mb-2">
           Current Tokens
         </div>
         <div
@@ -400,7 +400,7 @@ export function BpeTokenizationWidget() {
                 return (
                   <span
                     key={`${wi}-${ti}`}
-                    className="inline-flex items-center px-2 py-0.5 rounded font-mono text-xs transition-all duration-300"
+                    className="inline-flex items-center px-2 py-0.5 rounded font-mono text-xs transition-colors duration-300"
                     style={{
                       background:
                         TOKEN_COLORS[cIndex % TOKEN_COLORS.length],
@@ -427,7 +427,7 @@ export function BpeTokenizationWidget() {
       {/* Merge history */}
       {merges.length > 0 && (
         <div>
-          <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+          <div className="text-xs text-muted-foreground font-mono mb-2">
             Merge History
           </div>
           <div
@@ -497,7 +497,7 @@ export function BpeTokenizationWidget() {
                             background: "rgba(232,115,74,0.2)",
                             border:
                               "1px solid rgba(232,115,74,0.35)",
-                            color: "#fb923c",
+                            color: "#e8734a",
                           }}
                         >
                           {m.merged.replace(/ /g, "\u2423")}

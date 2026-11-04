@@ -100,7 +100,7 @@ function Arrow({ active }: { active: boolean }) {
     >
       <path
         d="M2 10 L20 10 M16 4 L22 10 L16 16"
-        stroke={active ? "#fb923c" : "#525252"}
+        stroke={active ? "#e8734a" : "#525252"}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -291,7 +291,7 @@ export function RagPipelineWidget() {
   if (!mounted) {
     return (
       <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
-        <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+        <div className="text-xs text-muted-foreground mb-4 font-mono">
           Interactive &middot; RAG Pipeline
         </div>
         <div style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -304,7 +304,7 @@ export function RagPipelineWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; RAG Pipeline
       </div>
 
@@ -336,12 +336,12 @@ export function RagPipelineWidget() {
           style={{
             padding: "8px 16px",
             borderRadius: 8,
-            border: "1px solid #fb923c",
-            background: running ? "#292524" : "#fb923c20",
-            color: "#fb923c",
+            border: "1px solid #e8734a",
+            background: running ? "#292524" : "#e8734a20",
+            color: "#e8734a",
             fontFamily: "monospace",
             fontSize: 13,
-            fontWeight: 600,
+            fontWeight: 500,
             cursor: running ? "not-allowed" : "pointer",
             transition: "all 0.2s ease",
             whiteSpace: "nowrap",
@@ -400,16 +400,16 @@ export function RagPipelineWidget() {
                   padding: "12px 10px",
                   borderRadius: 10,
                   border: isFrozen
-                    ? "2px solid #fb923c"
+                    ? "2px solid #e8734a"
                     : isActive
-                      ? "2px solid #fb923c88"
+                      ? "2px solid #e8734a88"
                       : isCompleted
-                        ? "1px solid #fb923c55"
+                        ? "1px solid #e8734a55"
                         : "1px solid #333",
                   background: isActive
-                    ? "#fb923c18"
+                    ? "#e8734a18"
                     : isCompleted
-                      ? "#fb923c0a"
+                      ? "#e8734a0a"
                       : "#1a1a1a",
                   cursor:
                     running || pipelineComplete ? "pointer" : "default",
@@ -427,7 +427,7 @@ export function RagPipelineWidget() {
                       inset: 0,
                       borderRadius: 10,
                       animation: "ragPulse 1.5s ease-in-out infinite",
-                      background: "radial-gradient(circle, #fb923c22 0%, transparent 70%)",
+                      background: "radial-gradient(circle, #e8734a22 0%, transparent 70%)",
                     }}
                   />
                 )}
@@ -453,8 +453,8 @@ export function RagPipelineWidget() {
                   style={{
                     fontSize: 11,
                     fontFamily: "monospace",
-                    fontWeight: 600,
-                    color: isActive || isCompleted ? "#fb923c" : "#737373",
+                    fontWeight: 500,
+                    color: isActive || isCompleted ? "#e8734a" : "#737373",
                     textAlign: "center",
                     lineHeight: 1.2,
                     transition: "color 0.3s ease",
@@ -496,11 +496,11 @@ export function RagPipelineWidget() {
             style={{
               fontSize: 12,
               fontFamily: "monospace",
-              fontWeight: 600,
-              color: "#fb923c",
+              fontWeight: 500,
+              color: "#e8734a",
               marginBottom: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              textTransform: "none",
+              letterSpacing: "0.01em",
             }}
           >
             Pipeline Results
@@ -516,7 +516,7 @@ export function RagPipelineWidget() {
           {/* Stage 1: Embedding */}
           {visibleUpTo >= 1 && (
             <ResultBlock title="Query Embedding" stageIdx={1}>
-              <code style={{ color: "#a3e635", wordBreak: "break-all" }}>
+              <code style={{ color: "#8b8d96", wordBreak: "break-all" }}>
                 [{data.embedding
                   .map((v, i) => {
                     if (activeStageIdx === 1) {
@@ -558,7 +558,7 @@ export function RagPipelineWidget() {
                       <td style={tdStyle}>
                         <span
                           style={{
-                            color: sim.score >= 0.7 ? "#fb923c" : "#737373",
+                            color: sim.score >= 0.7 ? "#e8734a" : "#737373",
                             fontWeight: sim.score >= 0.7 ? 700 : 400,
                           }}
                         >
@@ -578,7 +578,7 @@ export function RagPipelineWidget() {
                               width: `${sim.score * 100}%`,
                               height: "100%",
                               background:
-                                sim.score >= 0.7 ? "#fb923c" : "#525252",
+                                sim.score >= 0.7 ? "#e8734a" : "#525252",
                               borderRadius: 2,
                               transition: "width 0.5s ease",
                             }}
@@ -615,15 +615,15 @@ export function RagPipelineWidget() {
                     style={{
                       padding: "8px 12px",
                       borderRadius: 6,
-                      border: "1px solid #fb923c44",
-                      background: "#fb923c08",
+                      border: "1px solid #e8734a44",
+                      background: "#e8734a08",
                     }}
                   >
                     <div
                       style={{
                         fontSize: 10,
                         fontWeight: 700,
-                        color: "#fb923c",
+                        color: "#e8734a",
                         marginBottom: 4,
                         fontFamily: "monospace",
                       }}
@@ -684,7 +684,7 @@ export function RagPipelineWidget() {
                         display: "inline-block",
                         width: 2,
                         height: 14,
-                        background: "#fb923c",
+                        background: "#e8734a",
                         marginLeft: 1,
                         verticalAlign: "text-bottom",
                         animation: "ragBlink 0.8s step-end infinite",
@@ -726,11 +726,11 @@ function ResultBlock({
 }) {
   const colors = [
     "#a3a3a3",
-    "#a3e635",
-    "#38bdf8",
-    "#fb923c",
+    "#8b8d96",
+    "#6f9fc0",
+    "#e8734a",
     "#c084fc",
-    "#fb923c",
+    "#e8734a",
   ];
   return (
     <div
@@ -748,7 +748,7 @@ function ResultBlock({
           fontFamily: "monospace",
           fontWeight: 700,
           color: colors[stageIdx] ?? "#a3a3a3",
-          textTransform: "uppercase",
+          textTransform: "none",
           letterSpacing: "0.08em",
           marginBottom: 8,
         }}
@@ -768,10 +768,10 @@ const thStyle: React.CSSProperties = {
   textAlign: "center",
   borderBottom: "1px solid #333",
   color: "#737373",
-  fontWeight: 600,
+  fontWeight: 500,
   fontSize: 10,
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
+  textTransform: "none",
+  letterSpacing: "0.01em",
 };
 
 const tdStyle: React.CSSProperties = {

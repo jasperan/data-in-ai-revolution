@@ -116,9 +116,9 @@ const DATA_QUALITY_TIPS = [
 /* ------------------------------------------------------------------ */
 
 const TAB_COLORS: Record<TabKey, string> = {
-  sft: "#f472b6",   // pink
-  rlhf: "#9886c4",  // purple
-  dpo: "#5ba8c8",   // cyan
+  sft: "#a8846f",   // pink
+  rlhf: "#6f9fc0",  // purple
+  dpo: "#6f9fc0",   // cyan
 };
 
 /* ------------------------------------------------------------------ */
@@ -148,7 +148,7 @@ function EditableField({
     return (
       <div className="flex flex-col gap-1">
         <span
-          className="text-[10px] font-mono uppercase tracking-wider"
+          className="text-[12px] font-mono"
           style={{ color: accent, opacity: 0.7 }}
         >
           {label}
@@ -181,7 +181,7 @@ function EditableField({
       }}
     >
       <span
-        className="text-[10px] font-mono uppercase tracking-wider"
+        className="text-[12px] font-mono"
         style={{ color: accent, opacity: 0.7 }}
       >
         {label}
@@ -189,7 +189,7 @@ function EditableField({
       <div className="font-mono text-xs text-foreground/80 group-hover:text-foreground transition-colors leading-relaxed">
         {value}
         <span
-          className="ml-1.5 text-[10px] opacity-0 group-hover:opacity-60 transition-opacity"
+          className="ml-1.5 text-[12px] opacity-0 group-hover:opacity-60 transition-opacity"
           style={{ color: accent }}
         >
           (click to edit)
@@ -214,11 +214,11 @@ function QualityBadge({
   return (
     <button
       onClick={onToggle}
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider transition-all border cursor-pointer"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-mono transition-colors border cursor-pointer"
       style={{
-        background: isHigh ? "rgba(74,222,128,0.15)" : "rgba(248,113,113,0.15)",
-        borderColor: isHigh ? "rgba(74,222,128,0.3)" : "rgba(248,113,113,0.3)",
-        color: isHigh ? "#4ade80" : "#f87171",
+        background: isHigh ? "rgba(79,158,138,0.15)" : "rgba(248,113,113,0.15)",
+        borderColor: isHigh ? "rgba(79,158,138,0.3)" : "rgba(248,113,113,0.3)",
+        color: isHigh ? "#4f9e8a" : "#d16a5a",
       }}
       title="Click to toggle quality"
     >
@@ -256,7 +256,7 @@ function JsonPreview({ data, accent }: { data: unknown; accent: string }) {
       style={{ background: "rgba(0,0,0,0.3)", border: `1px solid ${accent}22` }}
     >
       <pre
-        className="text-[11px] font-mono leading-relaxed m-0"
+        className="text-[12px] font-mono leading-relaxed m-0"
         style={{ color: "#a1a1aa" }}
         dangerouslySetInnerHTML={{ __html: highlighted }}
       />
@@ -271,7 +271,7 @@ function JsonPreview({ data, accent }: { data: unknown; accent: string }) {
 function ScoreBar({ score, color, label }: { score: number; color: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] font-mono text-muted-foreground w-16 shrink-0">
+      <span className="text-[12px] font-mono text-muted-foreground w-16 shrink-0">
         {label}
       </span>
       <div
@@ -279,11 +279,11 @@ function ScoreBar({ score, color, label }: { score: number; color: string; label
         style={{ background: "rgba(255,255,255,0.06)" }}
       >
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="h-full rounded-full transition-colors duration-500"
           style={{ width: `${score}%`, background: color }}
         />
       </div>
-      <span className="text-[10px] font-mono w-8 text-right" style={{ color }}>
+      <span className="text-[12px] font-mono w-8 text-right" style={{ color }}>
         {score}
       </span>
     </div>
@@ -470,12 +470,12 @@ export function FineTuningWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Fine-Tuning Data Formats
       </div>
 
       {/* Title */}
-      <h3 className="text-lg font-semibold text-foreground m-0 mb-4">
+      <h3 className="text-lg font-medium text-foreground m-0 mb-4">
         Fine-Tuning Data Explorer
       </h3>
 
@@ -500,7 +500,7 @@ export function FineTuningWidget() {
         })}
         <div className="flex-1" />
         <button
-          className="btn-mono text-[10px]"
+          className="btn-mono text-[12px]"
           onClick={() => setShowJson((p) => !p)}
           style={{
             borderColor: showJson ? accent : undefined,
@@ -540,7 +540,7 @@ export function FineTuningWidget() {
             >
               <div className="flex items-center justify-between">
                 <span
-                  className="text-[10px] font-mono uppercase tracking-wider"
+                  className="text-[12px] font-mono"
                   style={{ color: accent }}
                 >
                   Example {idx + 1}
@@ -553,7 +553,7 @@ export function FineTuningWidget() {
                   {sftExamples.length > 1 && (
                     <button
                       onClick={() => removeSft(idx)}
-                      className="text-[10px] font-mono text-muted-foreground hover:text-red-400 transition-colors px-1"
+                      className="text-[12px] font-mono text-muted-foreground hover:text-red-400 transition-colors px-1"
                       title="Remove example"
                     >
                       &times;
@@ -601,7 +601,7 @@ export function FineTuningWidget() {
             >
               <div className="flex items-center justify-between">
                 <span
-                  className="text-[10px] font-mono uppercase tracking-wider"
+                  className="text-[12px] font-mono"
                   style={{ color: accent }}
                 >
                   Example {idx + 1}
@@ -614,7 +614,7 @@ export function FineTuningWidget() {
                   {rlhfExamples.length > 1 && (
                     <button
                       onClick={() => removeRlhf(idx)}
-                      className="text-[10px] font-mono text-muted-foreground hover:text-red-400 transition-colors px-1"
+                      className="text-[12px] font-mono text-muted-foreground hover:text-red-400 transition-colors px-1"
                       title="Remove example"
                     >
                       &times;
@@ -632,15 +632,15 @@ export function FineTuningWidget() {
                 <div
                   className="rounded-lg p-3"
                   style={{
-                    background: "rgba(74,222,128,0.05)",
-                    border: "1px solid rgba(74,222,128,0.15)",
+                    background: "rgba(79,158,138,0.05)",
+                    border: "1px solid rgba(79,158,138,0.15)",
                   }}
                 >
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span style={{ color: "#4ade80", fontSize: "14px" }}>{"\u2713"}</span>
+                    <span style={{ color: "#4f9e8a", fontSize: "14px" }}>{"\u2713"}</span>
                     <span
-                      className="text-[10px] font-mono uppercase tracking-wider"
-                      style={{ color: "#4ade80" }}
+                      className="text-[12px] font-mono"
+                      style={{ color: "#4f9e8a" }}
                     >
                       Chosen
                     </span>
@@ -649,7 +649,7 @@ export function FineTuningWidget() {
                     label=""
                     value={ex.chosen}
                     onChange={(v) => updateRlhf(idx, "chosen", v)}
-                    accent="#4ade80"
+                    accent="#4f9e8a"
                   />
                 </div>
                 <div
@@ -660,10 +660,10 @@ export function FineTuningWidget() {
                   }}
                 >
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span style={{ color: "#f87171", fontSize: "14px" }}>{"\u2717"}</span>
+                    <span style={{ color: "#d16a5a", fontSize: "14px" }}>{"\u2717"}</span>
                     <span
-                      className="text-[10px] font-mono uppercase tracking-wider"
-                      style={{ color: "#f87171" }}
+                      className="text-[12px] font-mono"
+                      style={{ color: "#d16a5a" }}
                     >
                       Rejected
                     </span>
@@ -672,7 +672,7 @@ export function FineTuningWidget() {
                     label=""
                     value={ex.rejected}
                     onChange={(v) => updateRlhf(idx, "rejected", v)}
-                    accent="#f87171"
+                    accent="#d16a5a"
                   />
                 </div>
               </div>
@@ -704,7 +704,7 @@ export function FineTuningWidget() {
             >
               <div className="flex items-center justify-between">
                 <span
-                  className="text-[10px] font-mono uppercase tracking-wider"
+                  className="text-[12px] font-mono"
                   style={{ color: accent }}
                 >
                   Example {idx + 1}
@@ -717,7 +717,7 @@ export function FineTuningWidget() {
                   {dpoExamples.length > 1 && (
                     <button
                       onClick={() => removeDpo(idx)}
-                      className="text-[10px] font-mono text-muted-foreground hover:text-red-400 transition-colors px-1"
+                      className="text-[12px] font-mono text-muted-foreground hover:text-red-400 transition-colors px-1"
                       title="Remove example"
                     >
                       &times;
@@ -735,15 +735,15 @@ export function FineTuningWidget() {
                 <div
                   className="rounded-lg p-3"
                   style={{
-                    background: "rgba(74,222,128,0.05)",
-                    border: "1px solid rgba(74,222,128,0.15)",
+                    background: "rgba(79,158,138,0.05)",
+                    border: "1px solid rgba(79,158,138,0.15)",
                   }}
                 >
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span style={{ color: "#4ade80", fontSize: "14px" }}>{"\u2713"}</span>
+                    <span style={{ color: "#4f9e8a", fontSize: "14px" }}>{"\u2713"}</span>
                     <span
-                      className="text-[10px] font-mono uppercase tracking-wider"
-                      style={{ color: "#4ade80" }}
+                      className="text-[12px] font-mono"
+                      style={{ color: "#4f9e8a" }}
                     >
                       Chosen (Preferred)
                     </span>
@@ -752,10 +752,10 @@ export function FineTuningWidget() {
                     label=""
                     value={ex.chosen}
                     onChange={(v) => updateDpo(idx, "chosen", v)}
-                    accent="#4ade80"
+                    accent="#4f9e8a"
                   />
                   <div className="mt-2">
-                    <ScoreBar score={ex.chosenScore} color="#4ade80" label="Score" />
+                    <ScoreBar score={ex.chosenScore} color="#4f9e8a" label="Score" />
                   </div>
                 </div>
                 <div
@@ -766,10 +766,10 @@ export function FineTuningWidget() {
                   }}
                 >
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span style={{ color: "#f87171", fontSize: "14px" }}>{"\u2717"}</span>
+                    <span style={{ color: "#d16a5a", fontSize: "14px" }}>{"\u2717"}</span>
                     <span
-                      className="text-[10px] font-mono uppercase tracking-wider"
-                      style={{ color: "#f87171" }}
+                      className="text-[12px] font-mono"
+                      style={{ color: "#d16a5a" }}
                     >
                       Rejected
                     </span>
@@ -778,21 +778,21 @@ export function FineTuningWidget() {
                     label=""
                     value={ex.rejected}
                     onChange={(v) => updateDpo(idx, "rejected", v)}
-                    accent="#f87171"
+                    accent="#d16a5a"
                   />
                   <div className="mt-2">
-                    <ScoreBar score={ex.rejectedScore} color="#f87171" label="Score" />
+                    <ScoreBar score={ex.rejectedScore} color="#d16a5a" label="Score" />
                   </div>
                 </div>
               </div>
             </div>
           ))}
           <div
-            className="text-[11px] font-mono px-3 py-2 rounded-lg"
+            className="text-[12px] font-mono px-3 py-2 rounded-lg"
             style={{
-              background: "rgba(91,168,200,0.06)",
-              border: "1px solid rgba(91,168,200,0.15)",
-              color: "#5ba8c8",
+              background: "rgba(111,159,192,0.06)",
+              border: "1px solid rgba(111,159,192,0.15)",
+              color: "#6f9fc0",
             }}
           >
             No reward model needed -- DPO learns preferences directly from the
@@ -813,7 +813,7 @@ export function FineTuningWidget() {
       {/* ================================================================ */}
       {showJson && (
         <div className="mt-6">
-          <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+          <div className="text-xs text-muted-foreground font-mono mb-2">
             Data Format Preview
           </div>
           <JsonPreview data={getJsonPreview()} accent={accent} />
@@ -830,10 +830,10 @@ export function FineTuningWidget() {
           className="rounded-lg p-3 text-center"
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
         >
-          <div className="text-lg font-semibold font-mono" style={{ color: accent }}>
+          <div className="text-lg font-medium font-mono" style={{ color: accent }}>
             {totalExamples}
           </div>
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+          <div className="text-[12px] font-mono text-muted-foreground">
             Total Examples
           </div>
         </div>
@@ -841,23 +841,23 @@ export function FineTuningWidget() {
           className="rounded-lg p-3 text-center"
           style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
         >
-          <div className="text-lg font-semibold font-mono" style={{ color: accent }}>
+          <div className="text-lg font-medium font-mono" style={{ color: accent }}>
             {avgInstructionLength}
           </div>
-          <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+          <div className="text-[12px] font-mono text-muted-foreground">
             Avg Instruction Len
           </div>
         </div>
         <div
           className="rounded-lg p-3 flex items-center justify-center"
           style={{
-            background: "rgba(74,222,128,0.08)",
-            border: "1px solid rgba(74,222,128,0.2)",
+            background: "rgba(79,158,138,0.08)",
+            border: "1px solid rgba(79,158,138,0.2)",
           }}
         >
           <span
-            className="text-[11px] font-mono font-semibold uppercase tracking-wider"
-            style={{ color: "#4ade80" }}
+            className="text-[12px] font-mono font-medium"
+            style={{ color: "#4f9e8a" }}
           >
             Quality &gt; Quantity
           </span>

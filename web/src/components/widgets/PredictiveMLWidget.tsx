@@ -46,16 +46,16 @@ interface FeatureImportance {
 
 const CITIES = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"];
 
-const AMBER = "#fbbf24";
+const AMBER = "#e8734a";
 const AMBER_DIM = "rgba(251,191,36,0.25)";
 const AMBER_BORDER = "rgba(251,191,36,0.5)";
 
 const FEATURE_IMPORTANCES: FeatureImportance[] = [
-  { name: "Income", value: 35, color: "#fbbf24" },
+  { name: "Income", value: 35, color: "#e8734a" },
   { name: "Age", value: 25, color: "#e8734a" },
-  { name: "Previous Cars", value: 20, color: "#5ba8c8" },
-  { name: "City", value: 12, color: "#9886c4" },
-  { name: "Age Group", value: 8, color: "#4ade80" },
+  { name: "Previous Cars", value: 20, color: "#6f9fc0" },
+  { name: "City", value: 12, color: "#6f9fc0" },
+  { name: "Age Group", value: 8, color: "#4f9e8a" },
 ];
 
 const PIPELINE_STAGES = [
@@ -203,10 +203,10 @@ function PipelineStageCard({
         background: active
           ? "rgba(251,191,36,0.06)"
           : completed
-          ? "rgba(74,222,128,0.04)"
+          ? "rgba(79,158,138,0.04)"
           : "rgba(255,255,255,0.02)",
         border: `1px solid ${
-          active ? AMBER_BORDER : completed ? "rgba(74,222,128,0.3)" : "rgba(255,255,255,0.08)"
+          active ? AMBER_BORDER : completed ? "rgba(79,158,138,0.3)" : "rgba(255,255,255,0.08)"
         }`,
         borderRadius: 10,
         padding: "12px 14px",
@@ -218,11 +218,11 @@ function PipelineStageCard({
         style={{
           fontSize: 10,
           fontFamily: "monospace",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
+          textTransform: "none",
+          letterSpacing: "0.01em",
           marginBottom: 8,
-          color: active ? AMBER : completed ? "#4ade80" : "rgba(255,255,255,0.4)",
-          fontWeight: 600,
+          color: active ? AMBER : completed ? "#4f9e8a" : "rgba(255,255,255,0.4)",
+          fontWeight: 500,
         }}
       >
         {completed && !active ? "\u2713 " : ""}
@@ -475,10 +475,10 @@ export function PredictiveMLWidget() {
   const predColor =
     predictionResult !== null
       ? predictionResult > 70
-        ? "#4ade80"
+        ? "#4f9e8a"
         : predictionResult >= 40
-        ? "#fbbf24"
-        : "#f87171"
+        ? "#e8734a"
+        : "#d16a5a"
       : AMBER;
 
   const predLabel =
@@ -499,13 +499,13 @@ export function PredictiveMLWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Predictive ML Pipeline
       </div>
 
       {/* Title + Model toggle */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 className="text-lg font-semibold text-foreground m-0">
+        <h3 className="text-lg font-medium text-foreground m-0">
           Car Purchase Prediction
         </h3>
         <div className="flex gap-1">
@@ -551,10 +551,10 @@ export function PredictiveMLWidget() {
               display: "block",
               fontSize: 10,
               fontFamily: "monospace",
-              textTransform: "uppercase",
+              textTransform: "none",
               color: "rgba(255,255,255,0.4)",
               marginBottom: 4,
-              letterSpacing: "0.05em",
+              letterSpacing: "0.01em",
             }}
           >
             Name
@@ -576,10 +576,10 @@ export function PredictiveMLWidget() {
               display: "block",
               fontSize: 10,
               fontFamily: "monospace",
-              textTransform: "uppercase",
+              textTransform: "none",
               color: "rgba(255,255,255,0.4)",
               marginBottom: 4,
-              letterSpacing: "0.05em",
+              letterSpacing: "0.01em",
             }}
           >
             Age:{" "}
@@ -620,10 +620,10 @@ export function PredictiveMLWidget() {
               display: "block",
               fontSize: 10,
               fontFamily: "monospace",
-              textTransform: "uppercase",
+              textTransform: "none",
               color: "rgba(255,255,255,0.4)",
               marginBottom: 4,
-              letterSpacing: "0.05em",
+              letterSpacing: "0.01em",
             }}
           >
             Income:{" "}
@@ -665,10 +665,10 @@ export function PredictiveMLWidget() {
               display: "block",
               fontSize: 10,
               fontFamily: "monospace",
-              textTransform: "uppercase",
+              textTransform: "none",
               color: "rgba(255,255,255,0.4)",
               marginBottom: 4,
-              letterSpacing: "0.05em",
+              letterSpacing: "0.01em",
             }}
           >
             Previous Cars:{" "}
@@ -686,7 +686,7 @@ export function PredictiveMLWidget() {
                   padding: "6px 0",
                   fontSize: 12,
                   fontFamily: "monospace",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   border: `1px solid ${
                     customerData.previousCars === n
                       ? AMBER
@@ -718,10 +718,10 @@ export function PredictiveMLWidget() {
               display: "block",
               fontSize: 10,
               fontFamily: "monospace",
-              textTransform: "uppercase",
+              textTransform: "none",
               color: "rgba(255,255,255,0.4)",
               marginBottom: 4,
-              letterSpacing: "0.05em",
+              letterSpacing: "0.01em",
             }}
           >
             City
@@ -809,10 +809,10 @@ export function PredictiveMLWidget() {
             style={{
               fontSize: 10,
               fontFamily: "monospace",
-              textTransform: "uppercase",
+              textTransform: "none",
               color: "rgba(255,255,255,0.4)",
               marginBottom: 10,
-              letterSpacing: "0.05em",
+              letterSpacing: "0.01em",
             }}
           >
             Pipeline Stages
@@ -841,24 +841,24 @@ export function PredictiveMLWidget() {
                 }}
               >
                 <div>
-                  <span style={{ color: "#9886c4" }}>&quot;name&quot;</span>:{" "}
-                  <span style={{ color: "#4ade80" }}>&quot;{customerData.name}&quot;</span>
+                  <span style={{ color: "#6f9fc0" }}>&quot;name&quot;</span>:{" "}
+                  <span style={{ color: "#4f9e8a" }}>&quot;{customerData.name}&quot;</span>
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>&quot;age&quot;</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>&quot;age&quot;</span>:{" "}
                   <span style={{ color: AMBER }}>{customerData.age}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>&quot;income&quot;</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>&quot;income&quot;</span>:{" "}
                   <span style={{ color: AMBER }}>{customerData.income}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>&quot;prev_cars&quot;</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>&quot;prev_cars&quot;</span>:{" "}
                   <span style={{ color: AMBER }}>{customerData.previousCars}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>&quot;city&quot;</span>:{" "}
-                  <span style={{ color: "#4ade80" }}>&quot;{customerData.city}&quot;</span>
+                  <span style={{ color: "#6f9fc0" }}>&quot;city&quot;</span>:{" "}
+                  <span style={{ color: "#4f9e8a" }}>&quot;{customerData.city}&quot;</span>
                 </div>
               </div>
             </PipelineStageCard>
@@ -880,17 +880,17 @@ export function PredictiveMLWidget() {
                 }}
               >
                 <div>
-                  <span style={{ color: "#5ba8c8" }}>age_group</span>:{" "}
-                  <span style={{ color: "#4ade80" }}>&quot;{derivedFeatures.age_group}&quot;</span>
+                  <span style={{ color: "#6f9fc0" }}>age_group</span>:{" "}
+                  <span style={{ color: "#4f9e8a" }}>&quot;{derivedFeatures.age_group}&quot;</span>
                 </div>
                 <div>
-                  <span style={{ color: "#5ba8c8" }}>income_bracket</span>:{" "}
-                  <span style={{ color: "#4ade80" }}>
+                  <span style={{ color: "#6f9fc0" }}>income_bracket</span>:{" "}
+                  <span style={{ color: "#4f9e8a" }}>
                     &quot;{derivedFeatures.income_bracket}&quot;
                   </span>
                 </div>
                 <div>
-                  <span style={{ color: "#5ba8c8" }}>car_history_score</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>car_history_score</span>:{" "}
                   <span style={{ color: AMBER }}>
                     {derivedFeatures.car_history_score}
                   </span>
@@ -917,19 +917,19 @@ export function PredictiveMLWidget() {
                   lineHeight: 1.6,
                 }}
               >
-                <div style={{ color: "#f87171", fontSize: 9, marginBottom: 2 }}>
+                <div style={{ color: "#d16a5a", fontSize: 9, marginBottom: 2 }}>
                   name &rarr; dropped
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>age_norm</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>age_norm</span>:{" "}
                   <span style={{ color: AMBER }}>{encodedFeatures.age_normalized}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>income_norm</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>income_norm</span>:{" "}
                   <span style={{ color: AMBER }}>{encodedFeatures.income_normalized}</span>
                 </div>
                 <div>
-                  <span style={{ color: "#9886c4" }}>car_score</span>:{" "}
+                  <span style={{ color: "#6f9fc0" }}>car_score</span>:{" "}
                   <span style={{ color: AMBER }}>
                     {encodedFeatures.car_history_score}
                   </span>
@@ -1043,7 +1043,7 @@ export function PredictiveMLWidget() {
             <div
               style={{
                 fontSize: 13,
-                fontWeight: 600,
+                fontWeight: 500,
                 color: predColor,
                 marginBottom: 10,
               }}
@@ -1123,10 +1123,10 @@ export function PredictiveMLWidget() {
               style={{
                 fontSize: 10,
                 fontFamily: "monospace",
-                textTransform: "uppercase",
+                textTransform: "none",
                 color: "rgba(255,255,255,0.4)",
                 marginBottom: 10,
-                letterSpacing: "0.05em",
+                letterSpacing: "0.01em",
               }}
             >
               Feature Importance

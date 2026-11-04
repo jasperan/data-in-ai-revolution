@@ -297,28 +297,28 @@ export function QuantizationWidget() {
   return (
     <div className="widget-container bg-card border border-border rounded-xl p-6 my-8 overflow-hidden">
       {/* Label */}
-      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-4 font-mono">
+      <div className="text-xs text-muted-foreground mb-4 font-mono">
         Interactive &middot; Model Quantization
       </div>
 
       {/* Title + compression badge */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 className="text-lg font-semibold text-foreground m-0">
+        <h3 className="text-lg font-medium text-foreground m-0">
           Weight Quantization
         </h3>
         <div className="flex items-center gap-3 font-mono text-xs">
           <span className="text-muted-foreground">
             Compression{" "}
             <span
-              className="font-semibold"
-              style={{ color: "#34d399" }}
+              className="font-medium"
+              style={{ color: "#4f9e8a" }}
             >
               {config.compression}x
             </span>
           </span>
           <span className="text-muted-foreground">
             Bits{" "}
-            <span className="text-foreground font-semibold">
+            <span className="text-foreground font-medium">
               {config.bits}
             </span>
           </span>
@@ -336,8 +336,8 @@ export function QuantizationWidget() {
               setHasQuantized(true);
             }}
             style={{
-              borderColor: bitWidth === bw ? "#34d399" : undefined,
-              color: bitWidth === bw ? "#34d399" : undefined,
+              borderColor: bitWidth === bw ? "#4f9e8a" : undefined,
+              color: bitWidth === bw ? "#4f9e8a" : undefined,
             }}
           >
             {bw}
@@ -354,8 +354,8 @@ export function QuantizationWidget() {
           style={{
             opacity: isAnimating ? 0.6 : 1,
             cursor: isAnimating ? "not-allowed" : "pointer",
-            borderColor: isAnimating ? "#34d399" : undefined,
-            color: isAnimating ? "#34d399" : undefined,
+            borderColor: isAnimating ? "#4f9e8a" : undefined,
+            color: isAnimating ? "#4f9e8a" : undefined,
           }}
         >
           {isAnimating ? "Quantizing..." : "Quantize"}
@@ -367,8 +367,8 @@ export function QuantizationWidget() {
           className={`btn-mono ${showErrorHeatmap ? "active" : ""}`}
           onClick={() => setShowErrorHeatmap((v) => !v)}
           style={{
-            borderColor: showErrorHeatmap ? "#f87171" : undefined,
-            color: showErrorHeatmap ? "#f87171" : undefined,
+            borderColor: showErrorHeatmap ? "#d16a5a" : undefined,
+            color: showErrorHeatmap ? "#d16a5a" : undefined,
           }}
         >
           {showErrorHeatmap ? "Hide Errors" : "Error Heatmap"}
@@ -388,7 +388,7 @@ export function QuantizationWidget() {
           <span className="text-muted-foreground ml-3">
             Quantized:{" "}
           </span>
-          <span style={{ color: "#34d399" }}>
+          <span style={{ color: "#4f9e8a" }}>
             {bitWidth === "FP32"
               ? tooltipContent.quant.toFixed(4)
               : tooltipContent.quant}
@@ -400,7 +400,7 @@ export function QuantizationWidget() {
             {tooltipContent.deq.toFixed(4)}
           </span>
           <span className="text-muted-foreground ml-3">Error: </span>
-          <span style={{ color: "#f87171" }}>
+          <span style={{ color: "#d16a5a" }}>
             {tooltipContent.err.toFixed(4)}
           </span>
         </div>
@@ -415,7 +415,7 @@ export function QuantizationWidget() {
       >
         {/* Original FP32 */}
         <div>
-          <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+          <div className="text-xs text-muted-foreground font-mono mb-2">
             Original (FP32)
           </div>
           <div
@@ -433,7 +433,7 @@ export function QuantizationWidget() {
                   return (
                     <div
                       key={ci}
-                      className="flex-1 text-center font-mono transition-all duration-150"
+                      className="flex-1 text-center font-mono transition-colors duration-150"
                       style={{
                         padding: "6px 2px",
                         fontSize: "0.65rem",
@@ -450,7 +450,7 @@ export function QuantizationWidget() {
                             : "none",
                         color: "#e4e4e7",
                         outline: isHovered
-                          ? "2px solid #34d399"
+                          ? "2px solid #4f9e8a"
                           : "none",
                         outlineOffset: "-2px",
                         cursor: "crosshair",
@@ -471,7 +471,7 @@ export function QuantizationWidget() {
 
         {/* Quantized */}
         <div>
-          <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+          <div className="text-xs text-muted-foreground font-mono mb-2">
             Quantized ({config.label})
           </div>
           <div
@@ -498,7 +498,7 @@ export function QuantizationWidget() {
                   return (
                     <div
                       key={ci}
-                      className="flex-1 text-center font-mono transition-all duration-150"
+                      className="flex-1 text-center font-mono transition-colors duration-150"
                       style={{
                         padding: "6px 2px",
                         fontSize: "0.65rem",
@@ -514,9 +514,9 @@ export function QuantizationWidget() {
                             ? "1px solid rgba(255,255,255,0.06)"
                             : "none",
                         color: "#e4e4e7",
-                        fontWeight: 600,
+                        fontWeight: 500,
                         outline: isHovered
-                          ? "2px solid #34d399"
+                          ? "2px solid #4f9e8a"
                           : "none",
                         outlineOffset: "-2px",
                         cursor: "crosshair",
@@ -539,7 +539,7 @@ export function QuantizationWidget() {
 
         {/* Dequantized / Error Heatmap */}
         <div>
-          <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+          <div className="text-xs text-muted-foreground font-mono mb-2">
             {showErrorHeatmap ? "Error Heatmap" : "Dequantized"}
           </div>
           <div
@@ -563,7 +563,7 @@ export function QuantizationWidget() {
                     return (
                       <div
                         key={ci}
-                        className="flex-1 text-center font-mono transition-all duration-150"
+                        className="flex-1 text-center font-mono transition-colors duration-150"
                         style={{
                           padding: "6px 2px",
                           fontSize: "0.65rem",
@@ -577,10 +577,10 @@ export function QuantizationWidget() {
                               ? "1px solid rgba(255,255,255,0.06)"
                               : "none",
                           color: showErrorHeatmap
-                            ? "#fca5a5"
+                            ? "#d16a5a"
                             : "#e4e4e7",
                           outline: isHovered
-                            ? "2px solid #34d399"
+                            ? "2px solid #4f9e8a"
                             : "none",
                           outlineOffset: "-2px",
                           cursor: "crosshair",
@@ -626,7 +626,7 @@ export function QuantizationWidget() {
 
       {/* Stats panel */}
       <div className="mb-5">
-        <div className="text-xs text-muted-foreground font-mono mb-2 uppercase tracking-wider">
+        <div className="text-xs text-muted-foreground font-mono mb-2">
           Stats
         </div>
         <div
@@ -655,7 +655,7 @@ export function QuantizationWidget() {
                   }}
                 >
                   <div
-                    className="h-full rounded-sm transition-all duration-500"
+                    className="h-full rounded-sm transition-colors duration-500"
                     style={{
                       width: `${originalSizePct}%`,
                       background:
@@ -686,7 +686,7 @@ export function QuantizationWidget() {
                   }}
                 >
                   <div
-                    className="h-full rounded-sm transition-all duration-500"
+                    className="h-full rounded-sm transition-colors duration-500"
                     style={{
                       width: `${quantizedSizePct}%`,
                       background:
@@ -699,7 +699,7 @@ export function QuantizationWidget() {
                   style={{
                     minWidth: 40,
                     textAlign: "right",
-                    color: "#34d399",
+                    color: "#4f9e8a",
                   }}
                 >
                   {quantizedSizePct}%
@@ -715,8 +715,8 @@ export function QuantizationWidget() {
                 Max Error
               </div>
               <div
-                className="font-mono text-sm font-semibold"
-                style={{ color: "#f87171" }}
+                className="font-mono text-sm font-medium"
+                style={{ color: "#d16a5a" }}
               >
                 {maxError.toFixed(4)}
               </div>
@@ -726,8 +726,8 @@ export function QuantizationWidget() {
                 Mean Error
               </div>
               <div
-                className="font-mono text-sm font-semibold"
-                style={{ color: "#fbbf24" }}
+                className="font-mono text-sm font-medium"
+                style={{ color: "#e8734a" }}
               >
                 {meanError.toFixed(4)}
               </div>
@@ -737,8 +737,8 @@ export function QuantizationWidget() {
                 RMSE
               </div>
               <div
-                className="font-mono text-sm font-semibold"
-                style={{ color: "#fb923c" }}
+                className="font-mono text-sm font-medium"
+                style={{ color: "#e8734a" }}
               >
                 {rmse.toFixed(4)}
               </div>
@@ -748,8 +748,8 @@ export function QuantizationWidget() {
                 Accuracy
               </div>
               <div
-                className="font-mono text-sm font-semibold"
-                style={{ color: "#34d399" }}
+                className="font-mono text-sm font-medium"
+                style={{ color: "#4f9e8a" }}
               >
                 {accuracyRetained}
               </div>
@@ -768,7 +768,7 @@ export function QuantizationWidget() {
         }}
       >
         <span
-          style={{ color: "#34d399", fontWeight: 600 }}
+          style={{ color: "#4f9e8a", fontWeight: 600 }}
         >
           Key insight:
         </span>{" "}
