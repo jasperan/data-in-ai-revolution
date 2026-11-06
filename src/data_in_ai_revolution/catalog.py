@@ -11,6 +11,7 @@ NOTEBOOK_TABLE_PATTERN = re.compile(
     r"^\| \[(?P<name>[^\]]+)\]\([^)]*\) \| (?P<description>.+?) \|$",
     re.MULTILINE,
 )
+CONTROL_CHARS_PATTERN = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
 TOP_LEVEL_HEADING_PATTERN = re.compile(r"^##\s+(?P<title>.+)$", re.MULTILINE)
 SCRIPT_SUMMARIES: dict[str, str] = {
     "check_embeddings_matrix.py": "Generate BERT embeddings for a custom sentence and inspect the raw tensor values.",
@@ -20,6 +21,11 @@ SCRIPT_SUMMARIES: dict[str, str] = {
     "manim_predictive_ml.py": "Render the predictive machine learning explainer animation with Manim.",
     "manim_quantization.py": "Render the quantization explainer animation with Manim.",
 }
+
+
+def display_text(value: str) -> str:
+    """Strip C0/C1 control characters (keeping tab and newline) from terminal-bound text."""
+    return CONTROL_CHARS_PATTERN.sub("", value)
 
 
 @dataclass(slots=True)
@@ -39,6 +45,14 @@ class Resource:
     highlights: tuple[str, ...] = ()
     commands: tuple[CommandSpec, ...] = ()
     metadata: dict[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        # Workshop text is rendered in a terminal; drop ESC and other control bytes so
+        # a README/notebook heading cannot emit CSI/OSC sequences (clipboard, erase, links).
+        self.title = display_text(self.title)
+        self.summary = display_text(self.summary)
+        self.tags = tuple(display_text(tag) for tag in self.tags)
+        self.highlights = tuple(display_text(line) for line in self.highlights)
 
     @property
     def searchable_text(self) -> str:

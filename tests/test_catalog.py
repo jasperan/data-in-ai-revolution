@@ -71,3 +71,18 @@ def test_build_catalog_skips_unreadable_notebook_json(tmp_path):
 
     titles = {resource.title for resource in catalog.notebooks}
     assert titles == {"Fine", "Broken One"}
+
+
+def test_headings_drop_terminal_control_sequences(tmp_path):
+    (tmp_path / "notebooks").mkdir()
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "README.md").write_text(
+        "# x\n\n## Crafted \x1b]52;c;cHduZWQ=\x1b\\ \x1b[3J section\n\nbody \x07\x1b[2J text\n",
+        encoding="utf-8",
+    )
+
+    section = build_catalog(tmp_path).sections[0]
+
+    for text in (section.title, section.summary):
+        assert not any(ord(char) < 0x20 and char not in "\t\n" or 0x7F <= ord(char) <= 0x9F for char in text)
+    assert "\x1b" not in section.title
