@@ -73,3 +73,24 @@ async def test_tui_launches_selected_lab(repo_root, monkeypatch):
 
     assert launched
     assert any(path.endswith("check_attention_heads.py") or path.endswith("02_attention_heads_explorer.ipynb") for path in launched)
+
+
+@pytest.mark.asyncio
+async def test_markup_in_catalog_text_is_rendered_literally(repo_root):
+    from data_in_ai_revolution.catalog import Resource
+
+    payload = "[link='https://evil.example/pwn']CLICKME[/link] [link=bad valor]x[/link]"
+    resource = Resource(
+        kind="section", slug="x", title=payload, path="README.md", summary=payload, highlights=(payload,)
+    )
+    app = DataInAIRevolutionApp(repo_root)
+
+    async with app.run_test(size=(140, 46)) as pilot:
+        browser = app.query_one("#map-browser", ResourceBrowser)
+        browser._all_resources = (resource,)
+        browser.refresh_resources()
+        await pilot.pause()
+
+        title = browser.query_one(".browser-title").render()
+        assert "[link='https://evil.example/pwn']CLICKME[/link]" in title.plain
+        assert not any(span.style and getattr(span.style, "link", None) for span in title.spans)

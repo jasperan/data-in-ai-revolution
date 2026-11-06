@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
+from rich.markup import escape
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.message import Message
@@ -188,13 +189,13 @@ class ResourceBrowser(Vertical):
         search_text = query.strip()
         results = f"{self.visible_count} results · {self.launchable_count} launchable"
         if search_text:
-            results += f" · query: {search_text}"
+            results += f" · query: {escape(search_text)}"
         self._results_summary = results
         self.query_one(".browser-results", Static).update(results)
 
     def _render_empty_state(self, query: str) -> None:
         search_text = query.strip()
-        kicker = f"0 results for '{search_text}'" if search_text else "0 results"
+        kicker = f"0 results for '{escape(search_text)}'" if search_text else "0 results"
         self.query_one(".browser-kicker", Static).update(kicker)
         self.query_one(".browser-title", Static).update("[b]No matching resources[/b]")
         self.query_one(".browser-summary", Static).update(
@@ -213,17 +214,17 @@ class ResourceBrowser(Vertical):
         index = self._visible_resources.index(resource) + 1
         launchable = can_launch(resource)
         kind_label = KIND_LABELS.get(resource.kind, resource.kind.title())
-        kicker = f"{index} of {len(self._visible_resources)} · {kind_label} · {resource.path}"
+        kicker = f"{index} of {len(self._visible_resources)} · {kind_label} · {escape(resource.path)}"
         summary = resource.summary or "No summary available."
-        tag_text = " · ".join(resource.tags) if resource.tags else "none"
+        tag_text = escape(" · ".join(resource.tags)) if resource.tags else "none"
         highlight_lines = resource.highlights[:3] if resource.highlights else ("No section highlights captured.",)
         command_text = build_command_preview(resource)
 
         self.query_one(".browser-kicker", Static).update(kicker)
         self.query_one(".browser-title", Static).update(
-            f"[b]{KIND_ICONS.get(resource.kind, '•')} {resource.title}[/b]"
+            f"[b]{KIND_ICONS.get(resource.kind, '•')} {escape(resource.title)}[/b]"
         )
-        self.query_one(".browser-summary", Static).update(summary)
+        self.query_one(".browser-summary", Static).update(escape(summary))
         self.query_one(".browser-meta", Static).update(
             "\n".join(
                 [
@@ -234,10 +235,10 @@ class ResourceBrowser(Vertical):
             )
         )
         self.query_one(".browser-highlights", Static).update(
-            "Highlights\n" + "\n".join(f"- {line}" for line in highlight_lines)
+            "Highlights\n" + "\n".join(f"- {escape(line)}" for line in highlight_lines)
         )
         self.query_one(".browser-detail", Markdown).update(self._render_detail_markdown(resource))
-        self.query_one(".browser-command", Static).update(f"Command preview: {command_text}")
+        self.query_one(".browser-command", Static).update(f"Command preview: {escape(command_text)}")
         self._action_text = (
             "Press Enter or l to launch this resource from the repo."
             if launchable
@@ -266,7 +267,7 @@ class ResourceBrowser(Vertical):
 
     def _format_option_label(self, resource: Resource) -> str:
         launch_prefix = "▶" if can_launch(resource) else "•"
-        return f"{launch_prefix} {KIND_ICONS.get(resource.kind, '•')} {resource.title}"
+        return f"{launch_prefix} {KIND_ICONS.get(resource.kind, '•')} {escape(resource.title)}"
 
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input is self.query_one(Input):
