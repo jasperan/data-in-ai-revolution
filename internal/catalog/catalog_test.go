@@ -68,3 +68,28 @@ func TestBuildCatalogReadsNotebookHeadingsFromStringSource(t *testing.T) {
 		t.Fatalf("unexpected highlights: %v", got)
 	}
 }
+
+func TestBuildStripsTerminalControlSequencesFromHeadings(t *testing.T) {
+	dir := t.TempDir()
+	for _, sub := range []string{"notebooks", "scripts", "video"} {
+		if err := os.MkdirAll(filepath.Join(dir, sub), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readme := "# x\n\n## Link \x1b]8;;https://evil.example/pwn\x1b\\CLICKME\x1b]8;;\x1b\\ tail\n\nbody \x1b[2J text\n"
+	if err := os.WriteFile(filepath.Join(dir, "README.md"), []byte(readme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cat, err := catalog.Build(dir)
+	if err != nil {
+		t.Fatalf("build catalog: %v", err)
+	}
+	if len(cat.Sections) == 0 {
+		t.Fatal("expected a section")
+	}
+	for _, text := range []string{cat.Sections[0].Title, cat.Sections[0].Summary} {
+		if strings.ContainsRune(text, 0x1b) {
+			t.Fatalf("escape byte survived in %q", text)
+		}
+	}
+}

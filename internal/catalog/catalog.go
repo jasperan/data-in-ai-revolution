@@ -127,11 +127,40 @@ func Build(root string) (Catalog, error) {
 
 	return Catalog{
 		Root:      root,
-		Sections:  sections,
-		Notebooks: notebooks,
-		Scripts:   scripts,
-		Videos:    videos,
+		Sections:  displaySafe(sections),
+		Notebooks: displaySafe(notebooks),
+		Scripts:   displaySafe(scripts),
+		Videos:    displaySafe(videos),
 	}, nil
+}
+
+// displaySafe strips control characters from the text fields that the TUI renders, so a
+// README or notebook heading cannot smuggle terminal escape sequences (for example OSC 8
+// hyperlinks) into the view.
+func displaySafe(resources []Resource) []Resource {
+	for i := range resources {
+		resources[i].Title = stripControl(resources[i].Title)
+		resources[i].Summary = stripControl(resources[i].Summary)
+		for j, tag := range resources[i].Tags {
+			resources[i].Tags[j] = stripControl(tag)
+		}
+		for j, line := range resources[i].Highlights {
+			resources[i].Highlights[j] = stripControl(line)
+		}
+	}
+	return resources
+}
+
+func stripControl(value string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\t' || r == '\n' {
+			return r
+		}
+		if r < 0x20 || (r >= 0x7f && r <= 0x9f) {
+			return -1
+		}
+		return r
+	}, value)
 }
 
 func parseNotebookDescriptions(readme string) map[string]string {
